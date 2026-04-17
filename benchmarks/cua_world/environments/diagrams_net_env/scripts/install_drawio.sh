@@ -15,7 +15,7 @@ apt-get install -y \
     libatk-bridge2.0-0 \
     libgtk-3-0 \
     libgbm1 \
-    libasound2
+    libasound2t64
 
 # Install GUI automation tools
 echo "Installing automation tools..."
@@ -33,7 +33,7 @@ apt-get install -y \
     python3-pip \
     python3-dev
 
-pip3 install --no-cache-dir \
+pip3 install --break-system-packages --no-cache-dir \
     pillow \
     lxml \
     xmltodict
@@ -73,14 +73,27 @@ wget -q --show-progress -O drawio.AppImage "$DRAWIO_URL" || {
 # Make AppImage executable
 chmod +x drawio.AppImage
 
-# Create symlink for easy access
-ln -sf /opt/drawio/drawio.AppImage /usr/local/bin/drawio
+# Extract AppImage (FUSE is not available in sysbox containers)
+echo "Extracting AppImage (no FUSE in container)..."
+./drawio.AppImage --appimage-extract > /dev/null 2>&1
+chmod -R a+rX squashfs-root/
+
+# Create symlink to extracted binary
+ln -sf /opt/drawio/squashfs-root/drawio /usr/local/bin/drawio
+
+# Replace AppImage with a wrapper so existing scripts that call
+# /opt/drawio/drawio.AppImage continue to work
+mv drawio.AppImage drawio.AppImage.bak
+cat > drawio.AppImage << 'WRAPPER'
+#!/bin/bash
+exec /opt/drawio/squashfs-root/drawio "$@"
+WRAPPER
+chmod +x drawio.AppImage
 
 # Verify installation
 echo "Verifying draw.io installation..."
-if [ -f /opt/drawio/drawio.AppImage ]; then
-    echo "draw.io AppImage installed successfully at /opt/drawio/drawio.AppImage"
-    ls -la /opt/drawio/
+if [ -x /opt/drawio/squashfs-root/drawio ]; then
+    echo "draw.io installed successfully at /opt/drawio/squashfs-root/drawio"
 else
     echo "ERROR: draw.io installation failed"
     exit 1
