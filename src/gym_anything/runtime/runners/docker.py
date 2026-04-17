@@ -60,9 +60,9 @@ def _container_is_running(container_name: str) -> bool:
         return False
 
 
-def _sh(cmd: List[str], check: bool = True, env: Optional[Dict[str, str]] = None, return_output: bool = False):
+def _sh(cmd: List[str], check: bool = True, env: Optional[Dict[str, str]] = None, return_output: bool = False, timeout: Optional[int] = None):
     if return_output:
-        proc = subprocess.run(cmd, env=env, capture_output=True, text=True)
+        proc = subprocess.run(cmd, env=env, capture_output=True, text=True, timeout=timeout)
         result = {
             'returncode': proc.returncode,
             'stdout': proc.stdout,
@@ -72,7 +72,7 @@ def _sh(cmd: List[str], check: bool = True, env: Optional[Dict[str, str]] = None
             raise RuntimeError(f"Command failed: {' '.join(cmd)}")
         return result
     else:
-        proc = subprocess.run(cmd, env=env)
+        proc = subprocess.run(cmd, env=env, timeout=timeout)
         if check and proc.returncode != 0:
             raise RuntimeError(f"Command failed: {' '.join(cmd)}")
         return proc.returncode
@@ -871,7 +871,7 @@ class DockerRunner(BaseRunner):
         self.exec(f"bash -lc 'python3 /workspace/env_api.py {shlex.quote(name)} {argv}'")
 
     # Public utility for recorders
-    def exec(self, cmd: str, env: Optional[Dict[str, str]] = None, user: Optional[str] = None, use_pty: bool = True) -> int:
+    def exec(self, cmd: str, env: Optional[Dict[str, str]] = None, user: Optional[str] = None, use_pty: bool = True, timeout: Optional[int] = None) -> int:
         # Note: use_pty is accepted for API compatibility with QemuApptainerRunner but is
         # ignored here. Docker exec doesn't have the same PTY/SIGHUP behavior as SSH.
         env = self.merge_exec_env(env)
@@ -883,7 +883,7 @@ class DockerRunner(BaseRunner):
             full_cmd += ["-u", user]
         full_cmd += [self.container_name, "bash", "-lc", cmd]
 
-        sh_output = _sh(full_cmd, check=True)
+        sh_output = _sh(full_cmd, check=True, timeout=timeout)
         return sh_output
 
     def exec_async(self, cmd: str, env: Optional[Dict[str, str]] = None, stdout=None, stderr=None, user: Optional[str] = None):
@@ -931,21 +931,28 @@ class DockerRunner(BaseRunner):
         return proc.stdout
 
     def capture_screenshot(self, host_path) -> bool:
-        # Use ffmpeg to capture one frame from X11 display
-        # breakpoint()
+        # Use ffmpeg to capture one frame from X11 display.
+        # Write to container /tmp (tmpfs, container-root writable) and then
+        # copy out — sysbox idmapped bind mounts block container-root from
+        # writing into host-owned dirs regardless of mode bits.
         host_path = os.path.abspath(str(host_path))
         Path(os.path.dirname(host_path)).mkdir(parents=True, exist_ok=True)
-        container_out = self.to_container_path(host_path)
-        # Try to infer resolution from spec; else omit -video_size
+        tmp_container = f"/tmp/ga_screenshot_{uuid.uuid4().hex[:8]}.png"
         screen_spec = next((o for o in self.spec.observation if o.type == "rgb_screen"), None)
         size_arg = (
             f"-video_size {screen_spec.resolution[0]}x{screen_spec.resolution[1]}"
             if (screen_spec and screen_spec.resolution)
             else ""
         )
-        cmd = f"ffmpeg -y -loglevel error -f x11grab {size_arg} -i $DISPLAY -vframes 1 {shlex.quote(container_out)}"
+        cmd = f"ffmpeg -y -loglevel error -f x11grab {size_arg} -i $DISPLAY -vframes 1 {shlex.quote(tmp_container)}"
         rc = self.exec(cmd)
-        return rc == 0
+        if rc != 0:
+            return False
+        try:
+            self.copy_from(tmp_container, host_path)
+        finally:
+            self.exec(f"rm -f {shlex.quote(tmp_container)}")
+        return True
 
     def capture_audio_raw(self, duration_sec: float, rate: int, channels: int) -> bytes:
         # Capture raw s16le from Pulse to stdout
