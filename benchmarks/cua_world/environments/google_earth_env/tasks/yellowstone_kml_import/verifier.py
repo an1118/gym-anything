@@ -251,7 +251,7 @@ def verify_yellowstone_kml_import(traj: Dict[str, Any], env_info: Dict[str, Any]
         # Get trajectory frames
         try:
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             
             if trajectory_frames and len(trajectory_frames) > 0:
                 vlm_result = query_vlm(

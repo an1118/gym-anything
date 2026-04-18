@@ -226,7 +226,7 @@ def verify_via_vlm(traj: Dict[str, Any], query_vlm) -> Tuple[int, List[str]]:
     
     # Sample trajectory frames (not just final screenshot!)
     try:
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         final = get_final_screenshot(traj)
         
         if final and final not in frames:

@@ -245,7 +245,7 @@ def verify_wallace_creek_offset(traj, env_info, task_info):
             # Get trajectory frames (preferred)
             if sample_trajectory_frames:
                 try:
-                    frames = sample_trajectory_frames(traj, n=5)
+                    frames = sample_trajectory_frames(traj, num_samples=5)
                 except:
                     pass
             

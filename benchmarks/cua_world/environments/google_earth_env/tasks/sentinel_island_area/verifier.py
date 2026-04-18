@@ -160,7 +160,7 @@ def verify_with_vlm(traj: Dict[str, Any], query_vlm) -> Dict[str, Any]:
         return {"success": False, "error": "Could not import VLM utilities", "score": 0}
     
     # Sample frames across trajectory (use multiple frames, not just final)
-    frames = sample_trajectory_frames(traj, n=5)
+    frames = sample_trajectory_frames(traj, num_samples=5)
     final_frame = get_final_screenshot(traj)
     
     if final_frame and final_frame not in frames:

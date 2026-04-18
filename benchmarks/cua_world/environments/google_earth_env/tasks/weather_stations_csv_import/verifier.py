@@ -365,7 +365,7 @@ def verify_weather_stations_csv_import(traj: Dict[str, Any], env_info: Dict[str,
         # Get trajectory frames
         try:
             from gym_anything.vlm import sample_trajectory_frames
-            traj_frames = sample_trajectory_frames(traj, n=5)
+            traj_frames = sample_trajectory_frames(traj, num_samples=5)
         except ImportError:
             # Fallback: extract frames manually
             traj_frames = []

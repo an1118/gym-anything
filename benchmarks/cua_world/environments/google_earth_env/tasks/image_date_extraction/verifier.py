@@ -328,7 +328,7 @@ def verify_image_date_extraction(traj: Dict[str, Any], env_info: Dict[str, Any],
         trajectory_frames = None
         if sample_trajectory_frames:
             try:
-                trajectory_frames = sample_trajectory_frames(traj, n=5)
+                trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             except Exception as e:
                 logger.warning(f"Could not sample trajectory frames: {e}")
         

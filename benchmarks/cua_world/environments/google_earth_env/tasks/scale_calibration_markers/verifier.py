@@ -380,7 +380,7 @@ def verify_scale_calibration_markers(traj: Dict[str, Any], env_info: Dict[str, A
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Get trajectory frames (sample 5 frames across the episode)
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             final_screenshot = get_final_screenshot(traj)
             
             # Trajectory process verification

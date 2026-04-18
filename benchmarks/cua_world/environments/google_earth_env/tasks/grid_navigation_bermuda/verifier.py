@@ -392,7 +392,7 @@ def verify_with_vlm_trajectory(traj: Dict[str, Any], query_vlm, copy_from_env, s
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
         
         # Get trajectory frames (captures the process, not just final state)
-        trajectory_frames = sample_trajectory_frames(traj, n=4)
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=4)
         final_screenshot = get_final_screenshot(traj)
         
         # Also get the saved screenshot from the container

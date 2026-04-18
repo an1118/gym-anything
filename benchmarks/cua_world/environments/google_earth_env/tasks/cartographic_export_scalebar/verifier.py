@@ -371,7 +371,7 @@ def verify_cartographic_export_scalebar(
             # Import trajectory utilities
             from gym_anything.vlm import sample_trajectory_frames
             
-            traj_frames = sample_trajectory_frames(traj, n=5)
+            traj_frames = sample_trajectory_frames(traj, num_samples=5)
             if traj_frames and len(traj_frames) >= 2:
                 vlm_traj = _safe_vlm_query(query_vlm, TRAJECTORY_WORKFLOW_PROMPT, images=traj_frames)
                 details['vlm_trajectory'] = vlm_traj

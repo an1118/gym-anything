@@ -187,7 +187,7 @@ def verify_trade_route_distance(traj: Dict[str, Any], env_info: Dict[str, Any], 
         # Import trajectory sampling utilities
         try:
             from gym_anything.vlm import sample_trajectory_frames
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
         except ImportError:
             # Fallback: try to get frames from trajectory directly
             trajectory_frames = []

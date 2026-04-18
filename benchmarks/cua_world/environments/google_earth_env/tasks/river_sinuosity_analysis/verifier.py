@@ -443,7 +443,7 @@ def verify_river_sinuosity_analysis(traj: Dict[str, Any], env_info: Dict[str, An
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Get trajectory frames for process verification
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             final_frame = get_final_screenshot(traj)
             
             all_frames = frames + ([final_frame] if final_frame else [])

@@ -238,7 +238,7 @@ def verify_historical_imagery_dubai(traj: Dict[str, Any], env_info: Dict[str, An
     try:
         # Import from gym_anything if available
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
-        trajectory_frames = sample_trajectory_frames(traj, n=5)
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
         final_frame = get_final_screenshot(traj)
         result_details['trajectory_frames_count'] = len(trajectory_frames)
         result_details['final_frame_available'] = final_frame is not None

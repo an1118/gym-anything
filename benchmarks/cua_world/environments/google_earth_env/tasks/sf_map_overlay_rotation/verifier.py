@@ -260,7 +260,7 @@ def verify_sf_map_overlay_rotation(traj: Dict[str, Any], env_info: Dict[str, Any
             # Get trajectory frames - use multiple frames across the episode
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
-            trajectory_frames = sample_trajectory_frames(traj, n=5) if hasattr(traj, '__iter__') else []
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5) if hasattr(traj, '__iter__') else []
             final_screenshot = get_final_screenshot(traj)
             
             if trajectory_frames or final_screenshot:

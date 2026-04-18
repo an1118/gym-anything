@@ -244,7 +244,7 @@ def verify_mirny_mine_diameter(traj: Dict[str, Any], env_info: Dict[str, Any], t
         # Sample trajectory frames
         try:
             from gym_anything.vlm import sample_trajectory_frames
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             
             if frames:
                 details['trajectory_frames_count'] = len(frames)

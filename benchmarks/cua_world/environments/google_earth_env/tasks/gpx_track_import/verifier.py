@@ -216,7 +216,7 @@ def verify_gpx_track_import(traj: Dict[str, Any], env_info: Dict[str, Any], task
         trajectory_frames = []
         try:
             from gym_anything.vlm import sample_trajectory_frames
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
         except Exception as e:
             logger.warning(f"Could not sample trajectory frames: {e}")
         

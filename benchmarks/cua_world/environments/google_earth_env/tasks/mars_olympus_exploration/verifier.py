@@ -236,7 +236,7 @@ def verify_mars_olympus_exploration(traj: Dict[str, Any], env_info: Dict[str, An
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Get trajectory frames (multiple frames across the episode)
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             final_screenshot = get_final_screenshot(traj)
             
             details['trajectory_frames_count'] = len(trajectory_frames) if trajectory_frames else 0

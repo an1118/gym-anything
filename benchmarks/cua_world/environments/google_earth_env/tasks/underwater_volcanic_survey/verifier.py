@@ -200,7 +200,7 @@ def verify_underwater_volcanic_survey(traj: Dict[str, Any], env_info: Dict[str, 
         try:
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             final_screenshot = get_final_screenshot(traj)
             
             # Process verification using trajectory

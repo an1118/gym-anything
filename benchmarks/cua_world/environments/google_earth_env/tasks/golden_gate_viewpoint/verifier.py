@@ -277,7 +277,7 @@ def verify_golden_gate_viewpoint(traj: Dict[str, Any], env_info: Dict[str, Any],
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Get trajectory frames for process verification
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             final_screenshot = get_final_screenshot(traj)
             
             if trajectory_frames or final_screenshot:

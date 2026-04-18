@@ -215,7 +215,7 @@ def verify_via_vlm(traj: Dict, env_info: Dict) -> tuple:
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
         
         # Sample frames from trajectory
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         final = get_final_screenshot(traj)
         
         if not frames and not final:

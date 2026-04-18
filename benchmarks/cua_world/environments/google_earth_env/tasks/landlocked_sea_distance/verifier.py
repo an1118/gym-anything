@@ -370,7 +370,7 @@ def verify_landlocked_sea_distance(traj: Dict[str, Any], env_info: Dict[str, Any
             # Import trajectory frame helpers
             from gym_anything.vlm import sample_trajectory_frames
             
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             
             if trajectory_frames:
                 vlm_result = query_vlm(

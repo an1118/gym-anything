@@ -281,7 +281,7 @@ def verify_layer_visibility_infrastructure(traj, env_info, task_info):
             # Import trajectory frame sampling
             from gym_anything.vlm import sample_trajectory_frames
             
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             if trajectory_frames and len(trajectory_frames) > 0:
                 traj_result = query_vlm(
                     prompt=TRAJECTORY_VERIFICATION_PROMPT,

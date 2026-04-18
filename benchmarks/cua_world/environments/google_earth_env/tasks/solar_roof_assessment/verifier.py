@@ -207,7 +207,7 @@ def check_orientation_in_text(text: str) -> bool:
     return False
 
 
-def sample_trajectory_frames(traj: Dict[str, Any], n: int = 5) -> list:
+def sample_trajectory_frames(traj: Dict[str, Any], num_samples: int = 5) -> list:
     """Sample n frames evenly from trajectory."""
     frames = traj.get('frames', [])
     if not frames:
@@ -402,7 +402,7 @@ def verify_solar_roof_assessment(traj: Dict[str, Any], env_info: Dict[str, Any],
     
     if query_vlm:
         # Sample trajectory frames
-        trajectory_frames = sample_trajectory_frames(traj, n=5)
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
         
         if trajectory_frames:
             try:

@@ -395,7 +395,7 @@ def verify_tripoint_border_marker(traj: Dict[str, Any], env_info: Dict[str, Any]
             # Import trajectory frame helpers
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             
             if frames and len(frames) > 0:
                 vlm_result = query_vlm(prompt=TRAJECTORY_PROMPT, images=frames)

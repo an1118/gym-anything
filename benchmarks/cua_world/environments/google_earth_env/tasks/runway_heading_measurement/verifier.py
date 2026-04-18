@@ -244,7 +244,7 @@ def verify_runway_heading_measurement(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample frames across trajectory to verify workflow
-            trajectory_frames = sample_trajectory_frames(traj, n=4)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=4)
             final_frame = get_final_screenshot(traj)
             
             if trajectory_frames or final_frame:

@@ -306,7 +306,7 @@ def verify_coastal_flythrough_export(traj: Dict[str, Any], env_info: Dict[str, A
         
         # Sample trajectory frames
         try:
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             result_details['trajectory_frames_count'] = len(trajectory_frames) if trajectory_frames else 0
         except Exception as e:
             logger.warning(f"Failed to sample trajectory frames: {e}")

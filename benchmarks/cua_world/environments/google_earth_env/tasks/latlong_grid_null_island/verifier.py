@@ -109,7 +109,7 @@ def get_trajectory_frames(traj: Dict[str, Any], n: int = 5) -> list:
     """Sample n frames from the trajectory for VLM verification."""
     try:
         from gym_anything.vlm import sample_trajectory_frames
-        return sample_trajectory_frames(traj, n=n)
+        return sample_trajectory_frames(traj, num_samples=n)
     except ImportError:
         logger.warning("Could not import sample_trajectory_frames, falling back to manual extraction")
         

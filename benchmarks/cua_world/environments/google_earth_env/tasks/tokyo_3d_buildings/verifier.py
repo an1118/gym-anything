@@ -271,7 +271,7 @@ def verify_tokyo_3d_buildings(traj: Dict[str, Any], env_info: Dict[str, Any], ta
         try:
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             details['trajectory_frames_count'] = len(trajectory_frames) if trajectory_frames else 0
             
             if trajectory_frames and len(trajectory_frames) >= 2:

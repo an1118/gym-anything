@@ -427,7 +427,7 @@ def verify_pipeline_route_measurement(traj: Dict[str, Any], env_info: Dict[str, 
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample frames across the trajectory
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             final_frame = get_final_screenshot(traj)
             
             if trajectory_frames or final_frame:

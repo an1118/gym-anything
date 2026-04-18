@@ -263,7 +263,7 @@ def verify_via_vlm(traj: Dict[str, Any], query_vlm,
     
     try:
         # Sample frames from trajectory
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if not frames:
             return {"success": False, "score": 0, "error": "No trajectory frames available"}

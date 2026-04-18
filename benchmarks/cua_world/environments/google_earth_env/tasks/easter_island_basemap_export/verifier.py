@@ -118,7 +118,7 @@ def _vlm_query(query_vlm, prompt: str, image=None, images=None) -> Optional[Dict
     return None
 
 
-def sample_trajectory_frames(traj: Dict[str, Any], n: int = 5) -> list:
+def sample_trajectory_frames(traj: Dict[str, Any], num_samples: int = 5) -> list:
     """Sample n frames evenly distributed across the trajectory."""
     frames = traj.get("frames", [])
     if not frames:
@@ -349,7 +349,7 @@ def verify_easter_island_basemap_export(traj: Dict[str, Any], env_info: Dict[str
     
     if query_vlm:
         # Sample frames from trajectory for workflow verification
-        trajectory_frames = sample_trajectory_frames(traj, n=5)
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
         
         if trajectory_frames:
             traj_result = _vlm_query(query_vlm, TRAJECTORY_WORKFLOW_PROMPT, images=trajectory_frames)

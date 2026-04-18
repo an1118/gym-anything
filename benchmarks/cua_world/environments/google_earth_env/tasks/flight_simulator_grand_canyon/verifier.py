@@ -149,7 +149,7 @@ def verify_flight_simulator_grand_canyon(traj: Dict[str, Any], env_info: Dict[st
             from gym_anything.vlm import sample_trajectory_frames
             
             # Sample frames across the trajectory
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             
             if trajectory_frames and len(trajectory_frames) > 0:
                 # Analyze trajectory for flight simulator workflow

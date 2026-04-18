@@ -283,7 +283,7 @@ def verify_thames_river_path(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Get trajectory frames (NOT just final screenshot)
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             final_frame = get_final_screenshot(traj)
             
             frames_to_analyze = []

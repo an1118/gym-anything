@@ -186,7 +186,7 @@ def verify_dam_crest_measurement(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames
             
             # Sample frames across the trajectory
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             
             if frames and len(frames) > 0:
                 trajectory_prompt = """You are analyzing a sequence of screenshots from an agent performing a measurement task in Google Earth Pro.

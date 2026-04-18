@@ -266,7 +266,7 @@ def verify_via_vlm(traj: Dict[str, Any], env_info: Dict[str, Any], copy_from_env
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
         
         # Sample frames across the trajectory (captures workflow progression)
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         final_frame = get_final_screenshot(traj)
         
         if final_frame and final_frame not in frames:

@@ -163,7 +163,7 @@ def verify_via_vlm(traj: Dict[str, Any], query_vlm) -> Dict[str, Any]:
             images.append(final_frame)
     else:
         # Use proper utilities
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         final = get_final_screenshot(traj)
         images = frames if frames else []
         if final and final not in images:

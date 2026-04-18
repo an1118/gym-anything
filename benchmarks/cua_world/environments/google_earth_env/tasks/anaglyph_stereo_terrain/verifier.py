@@ -394,7 +394,7 @@ def verify_anaglyph_stereo_terrain(traj: Dict[str, Any], env_info: Dict[str, Any
         try:
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot as vlm_final
             
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             details['trajectory_frames_count'] = len(frames) if frames else 0
             
             if frames and len(frames) >= 2:

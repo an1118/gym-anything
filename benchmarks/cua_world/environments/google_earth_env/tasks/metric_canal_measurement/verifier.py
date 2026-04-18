@@ -299,7 +299,7 @@ def verify_metric_canal_measurement(traj: Dict[str, Any], env_info: Dict[str, An
         # Import trajectory frame sampling
         try:
             from gym_anything.vlm import sample_trajectory_frames
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             
             if trajectory_frames and len(trajectory_frames) > 0:
                 vlm_traj_result = query_vlm(

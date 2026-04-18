@@ -209,7 +209,7 @@ def verify_via_vlm(traj, query_vlm):
         return {"success": False, "error": "VLM utilities not available"}
     
     # Sample frames from trajectory (not just final)
-    frames = sample_trajectory_frames(traj, n=5)
+    frames = sample_trajectory_frames(traj, num_samples=5)
     final = get_final_screenshot(traj)
     
     if not frames and not final:

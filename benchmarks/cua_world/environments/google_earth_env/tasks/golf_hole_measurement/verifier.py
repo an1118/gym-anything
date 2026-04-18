@@ -295,7 +295,7 @@ def verify_via_vlm(traj: Dict[str, Any], query_vlm) -> Dict[str, Any]:
         return {"success": False, "error": "VLM utilities not available"}
     
     # Get trajectory frames (sample across the episode, not just final)
-    frames = sample_trajectory_frames(traj, n=5)  # Sample 5 frames across trajectory
+    frames = sample_trajectory_frames(traj, num_samples=5)  # Sample 5 frames across trajectory
     final_frame = get_final_screenshot(traj)
     
     if final_frame:
