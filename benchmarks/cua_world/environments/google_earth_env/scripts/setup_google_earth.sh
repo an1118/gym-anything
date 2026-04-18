@@ -28,6 +28,14 @@ EOF
     chown $username:$username "$home_dir/Desktop/GoogleEarth.desktop"
     chmod +x "$home_dir/Desktop/GoogleEarth.desktop"
 
+    # Seed Qt config so the Start-up Tips dialog never appears on first launch.
+    # GoogleEarthPro.conf is a Qt INI file; GE preserves keys we set and fills in the rest.
+    sudo -u $username tee "$home_dir/.config/Google/GoogleEarthPro.conf" >/dev/null << 'EOF'
+[General]
+enableTips=false
+UnfinishedSessions=0
+EOF
+
     # Suppress first-run dialogs/tips if config exists
     if [ -d "/workspace/config/googleearth" ]; then
         cp -r /workspace/config/googleearth/* "$home_dir/.googleearth/" 2>/dev/null || true
