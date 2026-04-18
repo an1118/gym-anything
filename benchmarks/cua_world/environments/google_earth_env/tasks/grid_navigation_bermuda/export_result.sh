@@ -90,6 +90,22 @@ fi
 # Get window title
 WINDOW_TITLE=$(xdotool getactivewindow getwindowname 2>/dev/null || echo "unknown")
 
+# --- Flush Qt preferences: GE Pro writes GoogleEarthPro.conf only on exit. ---
+if pgrep -f google-earth-pro > /dev/null 2>&1; then
+    _GE_WAS_RUNNING="true"
+else
+    _GE_WAS_RUNNING="false"
+fi
+pkill -TERM -f google-earth-pro 2>/dev/null || true
+for _ in 1 2 3 4 5 6 7 8; do
+    pgrep -f google-earth-pro >/dev/null || break
+    sleep 0.5
+done
+pkill -KILL -f google-earth-pro 2>/dev/null || true
+sleep 0.5
+GOOGLE_EARTH_RUNNING="$_GE_WAS_RUNNING"
+# --- end flush ---
+
 # Check for grid setting in config (if accessible)
 GRID_IN_CONFIG="unknown"
 EARTH_CONF="/home/ga/.config/Google/GoogleEarthPro.conf"

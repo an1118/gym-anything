@@ -59,6 +59,21 @@ fi
 EXAGGERATION_VALUE="unknown"
 EXAGGERATION_FOUND="false"
 
+# --- Flush Qt preferences: GE Pro writes GoogleEarthPro.conf only on exit. ---
+if pgrep -f google-earth-pro > /dev/null 2>&1; then
+    _GE_WAS_RUNNING="true"
+else
+    _GE_WAS_RUNNING="false"
+fi
+pkill -TERM -f google-earth-pro 2>/dev/null || true
+for _ in 1 2 3 4 5 6 7 8; do
+    pgrep -f google-earth-pro >/dev/null || break
+    sleep 0.5
+done
+pkill -KILL -f google-earth-pro 2>/dev/null || true
+sleep 0.5
+# --- end flush ---
+
 CONFIG_PATHS="/home/ga/.config/Google/GoogleEarthPro.conf /home/ga/.googleearth/GoogleEarthPro.conf /home/ga/.googleearth/Registry/google.earth"
 
 for config_path in $CONFIG_PATHS; do
