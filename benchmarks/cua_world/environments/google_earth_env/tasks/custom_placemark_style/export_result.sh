@@ -60,7 +60,8 @@ LOOKAT_RANGE=""
 if [ -n "$MYPLACES_PATH" ] && [ -f "$MYPLACES_PATH" ]; then
     MYPLACES_EXISTS="true"
     FINAL_MTIME=$(stat -c %Y "$MYPLACES_PATH" 2>/dev/null || echo "0")
-    FINAL_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || echo "0")
+    FINAL_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || true)
+FINAL_PLACEMARK_COUNT=${FINAL_PLACEMARK_COUNT:-0}
     
     # Check if file was modified during task
     INITIAL_MTIME=$(cat /tmp/initial_state.json 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin).get('initial_mtime', 0))" 2>/dev/null || echo "0")

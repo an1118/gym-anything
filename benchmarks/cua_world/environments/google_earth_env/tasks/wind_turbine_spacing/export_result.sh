@@ -75,11 +75,13 @@ if [ -f "$MYPLACES_KML" ]; then
         echo "My Places was modified during task"
     fi
     
-    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_KML" 2>/dev/null || echo "0")
+    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_KML" 2>/dev/null || true)
+CURRENT_PLACEMARK_COUNT=${CURRENT_PLACEMARK_COUNT:-0}
     echo "Current placemark count: $CURRENT_PLACEMARK_COUNT (was: $INITIAL_PLACEMARK_COUNT)"
     
     # Extract turbine-related placemarks
-    TURBINE_PLACEMARKS_FOUND=$(grep -i "turbine" "$MYPLACES_KML" 2>/dev/null | grep -c "<name>" || echo "0")
+    TURBINE_PLACEMARKS_FOUND=$(grep -i "turbine" "$MYPLACES_KML" 2>/dev/null | grep -c "<name>" || true)
+TURBINE_PLACEMARKS_FOUND=${TURBINE_PLACEMARKS_FOUND:-0}
     echo "Turbine placemarks found: $TURBINE_PLACEMARKS_FOUND"
     
     # Extract placemark coordinates for turbine placemarks

@@ -37,7 +37,8 @@ MYPLACES_MTIME="0"
 
 if [ -f "$MYPLACES_FILE" ]; then
     MYPLACES_EXISTS="true"
-    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark" "$MYPLACES_FILE" 2>/dev/null || echo "0")
+    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark" "$MYPLACES_FILE" 2>/dev/null || true)
+CURRENT_PLACEMARK_COUNT=${CURRENT_PLACEMARK_COUNT:-0}
     MYPLACES_MTIME=$(stat -c %Y "$MYPLACES_FILE" 2>/dev/null || echo "0")
     
     # Check if modified since task start

@@ -38,7 +38,8 @@ if [ -f "$MYPLACES_FILE" ]; then
     MYPLACES_MTIME=$(stat -c %Y "$MYPLACES_FILE" 2>/dev/null || echo "0")
     
     # Count LineString elements (paths)
-    PATH_COUNT=$(grep -c "<LineString>" "$MYPLACES_FILE" 2>/dev/null || echo "0")
+    PATH_COUNT=$(grep -c "<LineString>" "$MYPLACES_FILE" 2>/dev/null || true)
+PATH_COUNT=${PATH_COUNT:-0}
     
     # Check for target path name (case-insensitive)
     if grep -qi "Central_Park_Perimeter\|Central Park Perimeter\|CentralParkPerimeter" "$MYPLACES_FILE" 2>/dev/null; then
@@ -87,7 +88,8 @@ PYEOF
     
     # Count coordinates if found
     if [ -n "$COORDINATES_RAW" ]; then
-        NUM_COORDINATES=$(echo "$COORDINATES_RAW" | tr ' ' '\n' | grep -c ',' || echo "0")
+        NUM_COORDINATES=$(echo "$COORDINATES_RAW" | tr ' ' '\n' | grep -c ',' || true)
+NUM_COORDINATES=${NUM_COORDINATES:-0}
     fi
     
     echo "Path count: $PATH_COUNT"

@@ -44,9 +44,12 @@ if [ -f "$OUTPUT_PATH" ]; then
     head -c 10240 "$OUTPUT_PATH" > /tmp/kml_content.txt 2>/dev/null || true
     
     # Count placemarks and paths in KML
-    PLACEMARK_COUNT=$(grep -ci "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    PATH_COUNT=$(grep -ci "<LineString>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    COORDINATE_COUNT=$(grep -ci "<coordinates>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
+    PLACEMARK_COUNT=$(grep -ci "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || true)
+PLACEMARK_COUNT=${PLACEMARK_COUNT:-0}
+    PATH_COUNT=$(grep -ci "<LineString>" "$OUTPUT_PATH" 2>/dev/null || true)
+PATH_COUNT=${PATH_COUNT:-0}
+    COORDINATE_COUNT=$(grep -ci "<coordinates>" "$OUTPUT_PATH" 2>/dev/null || true)
+COORDINATE_COUNT=${COORDINATE_COUNT:-0}
     
     # Check for expected placemark names
     HAS_MOUND_A=$(grep -qi "mound.*a\|bird.*mound" "$OUTPUT_PATH" 2>/dev/null && echo "true" || echo "false")

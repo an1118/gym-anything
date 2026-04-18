@@ -89,7 +89,8 @@ fi
 # Count current placemarks
 CURRENT_PLACEMARK_COUNT="0"
 if [ -f /tmp/myplaces_final.kml ]; then
-    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark" /tmp/myplaces_final.kml 2>/dev/null || echo "0")
+    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark" /tmp/myplaces_final.kml 2>/dev/null || true)
+CURRENT_PLACEMARK_COUNT=${CURRENT_PLACEMARK_COUNT:-0}
 fi
 echo "Current placemark count: $CURRENT_PLACEMARK_COUNT (was: $INITIAL_PLACEMARK_COUNT)"
 

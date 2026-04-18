@@ -28,8 +28,10 @@ if [ -f "$KML_PATH" ]; then
     KML_EXISTS="true"
     KML_MTIME=$(stat -c %Y "$KML_PATH" 2>/dev/null || echo "0")
     KML_SIZE=$(stat -c %s "$KML_PATH" 2>/dev/null || echo "0")
-    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_PATH" 2>/dev/null || echo "0")
-    CURRENT_PATH_COUNT=$(grep -c "<LineString>" "$KML_PATH" 2>/dev/null || echo "0")
+    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_PATH" 2>/dev/null || true)
+CURRENT_PLACEMARK_COUNT=${CURRENT_PLACEMARK_COUNT:-0}
+    CURRENT_PATH_COUNT=$(grep -c "<LineString>" "$KML_PATH" 2>/dev/null || true)
+CURRENT_PATH_COUNT=${CURRENT_PATH_COUNT:-0}
     
     # Extract KML content for analysis (limit size)
     KML_CONTENT=$(head -c 50000 "$KML_PATH" 2>/dev/null | base64 -w 0 || echo "")

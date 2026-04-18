@@ -99,13 +99,15 @@ if [ -f "$OUTPUT_PATH" ]; then
     fi
     
     # Count Placemark elements (paths are stored as Placemarks)
-    KML_PATH_COUNT=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
+    KML_PATH_COUNT=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || true)
+KML_PATH_COUNT=${KML_PATH_COUNT:-0}
     echo "Placemarks found: $KML_PATH_COUNT"
     
     # Check for LineString (path geometry)
     if grep -qi "<LineString>" "$OUTPUT_PATH" 2>/dev/null; then
         KML_HAS_LINESTRING="true"
-        LINESTRING_COUNT=$(grep -c "<LineString>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
+        LINESTRING_COUNT=$(grep -c "<LineString>" "$OUTPUT_PATH" 2>/dev/null || true)
+LINESTRING_COUNT=${LINESTRING_COUNT:-0}
         echo "LineString elements: $LINESTRING_COUNT"
     fi
     

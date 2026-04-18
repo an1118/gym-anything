@@ -58,7 +58,8 @@ if [ -f "$MYPLACES_FILE" ]; then
     fi
     
     # Count paths (LineString elements)
-    PATH_COUNT=$(grep -c "<LineString>" "$MYPLACES_FILE" 2>/dev/null || echo "0")
+    PATH_COUNT=$(grep -c "<LineString>" "$MYPLACES_FILE" 2>/dev/null || true)
+PATH_COUNT=${PATH_COUNT:-0}
     echo "Found $PATH_COUNT paths in myplaces.kml"
     
     # Copy myplaces.kml for analysis

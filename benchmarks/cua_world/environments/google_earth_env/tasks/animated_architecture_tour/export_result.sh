@@ -67,7 +67,8 @@ PLACEMARK_COUNT="0"
 FOLDER_EXISTS="false"
 
 if [ -f "$MYPLACES_PATH" ]; then
-    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || echo "0")
+    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || true)
+PLACEMARK_COUNT=${PLACEMARK_COUNT:-0}
     if [ "$PLACEMARK_COUNT" -gt "0" ]; then
         MYPLACES_HAS_PLACEMARKS="true"
     fi

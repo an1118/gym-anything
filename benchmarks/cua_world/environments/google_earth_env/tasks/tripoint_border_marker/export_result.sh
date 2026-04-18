@@ -45,7 +45,8 @@ MYPLACES_CONTENT=""
 
 if [ -f "$MY_PLACES_FILE" ]; then
     MYPLACES_EXISTS="true"
-    CURRENT_COUNT=$(grep -c "<Placemark>" "$MY_PLACES_FILE" 2>/dev/null || echo "0")
+    CURRENT_COUNT=$(grep -c "<Placemark>" "$MY_PLACES_FILE" 2>/dev/null || true)
+CURRENT_COUNT=${CURRENT_COUNT:-0}
     CURRENT_HASH=$(md5sum "$MY_PLACES_FILE" | cut -d' ' -f1)
     FILE_MTIME=$(stat -c %Y "$MY_PLACES_FILE" 2>/dev/null || echo "0")
     

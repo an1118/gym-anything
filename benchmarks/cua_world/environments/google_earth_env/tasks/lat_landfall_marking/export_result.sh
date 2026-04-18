@@ -42,7 +42,8 @@ for KML_PATH in "${MYPLACES_PATHS[@]}"; do
         chmod 644 /tmp/myplaces_export.kml 2>/dev/null || true
         
         # Count placemarks
-        CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_PATH" 2>/dev/null || echo "0")
+        CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_PATH" 2>/dev/null || true)
+CURRENT_PLACEMARK_COUNT=${CURRENT_PLACEMARK_COUNT:-0}
         
         # Check if modified during task
         CURRENT_MTIME=$(stat -c %Y "$KML_PATH" 2>/dev/null || echo "0")

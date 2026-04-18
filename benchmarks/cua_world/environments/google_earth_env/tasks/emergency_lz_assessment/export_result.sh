@@ -75,7 +75,8 @@ if [ "$OUTPUT_EXISTS" = "true" ]; then
     fi
     
     # Count placemarks
-    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
+    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || true)
+PLACEMARK_COUNT=${PLACEMARK_COUNT:-0}
     echo "Placemark count: $PLACEMARK_COUNT"
     
     # Extract coordinates and names using Python for reliable parsing

@@ -49,7 +49,8 @@ if [ -f "$OUTPUT_PATH" ]; then
     KML_CONTENT=$(head -c 51200 "$OUTPUT_PATH" 2>/dev/null | base64 -w 0 || echo "")
     
     # Count placemarks in KML
-    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
+    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || true)
+PLACEMARK_COUNT=${PLACEMARK_COUNT:-0}
     echo "Placemark count in KML: $PLACEMARK_COUNT"
     
     # Check for folder structure
@@ -90,7 +91,8 @@ MYPLACES_PLACEMARKS="0"
 MYPLACES_HAS_CRATER="false"
 
 if [ -f "$MYPLACES_PATH" ]; then
-    MYPLACES_PLACEMARKS=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || echo "0")
+    MYPLACES_PLACEMARKS=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || true)
+MYPLACES_PLACEMARKS=${MYPLACES_PLACEMARKS:-0}
     if grep -qi "crater" "$MYPLACES_PATH" 2>/dev/null; then
         MYPLACES_HAS_CRATER="true"
     fi

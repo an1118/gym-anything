@@ -67,7 +67,8 @@ if [ -f "$OUTPUT_PATH" ]; then
         # Count coordinate points (rough estimate)
         COORD_TEXT=$(grep -oP '(?<=<coordinates>).*?(?=</coordinates>)' "$OUTPUT_PATH" 2>/dev/null | head -1 || echo "")
         if [ -n "$COORD_TEXT" ]; then
-            COORDINATE_COUNT=$(echo "$COORD_TEXT" | tr ' ' '\n' | grep -c ',' 2>/dev/null || echo "0")
+            COORDINATE_COUNT=$(echo "$COORD_TEXT" | tr ' ' '\n' | grep -c ',' 2>/dev/null || true)
+COORDINATE_COUNT=${COORDINATE_COUNT:-0}
         fi
     fi
     

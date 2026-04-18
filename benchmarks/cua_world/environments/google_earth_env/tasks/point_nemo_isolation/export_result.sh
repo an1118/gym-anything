@@ -102,10 +102,12 @@ HAS_PATH="false"
 
 if [ -n "$KML_CONTENT" ]; then
     # Count placemarks
-    NUM_PLACEMARKS=$(echo "$KML_CONTENT" | grep -c "<Placemark>" 2>/dev/null || echo "0")
+    NUM_PLACEMARKS=$(echo "$KML_CONTENT" | grep -c "<Placemark>" 2>/dev/null || true)
+NUM_PLACEMARKS=${NUM_PLACEMARKS:-0}
     
     # Count paths/linestrings
-    NUM_PATHS=$(echo "$KML_CONTENT" | grep -c "<LineString>" 2>/dev/null || echo "0")
+    NUM_PATHS=$(echo "$KML_CONTENT" | grep -c "<LineString>" 2>/dev/null || true)
+NUM_PATHS=${NUM_PATHS:-0}
     
     # Check for Point Nemo placemark
     if echo "$KML_CONTENT" | grep -qi "nemo\|oceanic.*pole"; then

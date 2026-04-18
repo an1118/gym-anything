@@ -52,10 +52,12 @@ if [ -f "$KML_PATH" ]; then
     fi
 
     # Count placemarks
-    KML_PLACEMARK_COUNT=$(grep -c "<Placemark" "$KML_PATH" 2>/dev/null || echo "0")
+    KML_PLACEMARK_COUNT=$(grep -c "<Placemark" "$KML_PATH" 2>/dev/null || true)
+KML_PLACEMARK_COUNT=${KML_PLACEMARK_COUNT:-0}
 
     # Count paths (LineString elements)
-    KML_PATH_COUNT=$(grep -c "<LineString" "$KML_PATH" 2>/dev/null || echo "0")
+    KML_PATH_COUNT=$(grep -c "<LineString" "$KML_PATH" 2>/dev/null || true)
+KML_PATH_COUNT=${KML_PATH_COUNT:-0}
 
     # Extract placemark names
     NAMES_RAW=$(grep -oP '(?<=<name>)[^<]+' "$KML_PATH" 2>/dev/null | head -20 | tr '\n' '|' || echo "")
@@ -131,7 +133,8 @@ MYPLACES_HAS_CAUSEWAY="false"
 
 if [ -f "$MYPLACES_FILE" ]; then
     MYPLACES_EXISTS="true"
-    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark" "$MYPLACES_FILE" 2>/dev/null || echo "0")
+    CURRENT_PLACEMARK_COUNT=$(grep -c "<Placemark" "$MYPLACES_FILE" 2>/dev/null || true)
+CURRENT_PLACEMARK_COUNT=${CURRENT_PLACEMARK_COUNT:-0}
     MYPLACES_MTIME=$(stat -c %Y "$MYPLACES_FILE" 2>/dev/null || echo "0")
 
     INITIAL_MTIME=$(cat /tmp/myplaces_initial_mtime.txt 2>/dev/null || echo "0")

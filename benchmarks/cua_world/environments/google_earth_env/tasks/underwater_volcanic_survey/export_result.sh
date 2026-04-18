@@ -59,7 +59,8 @@ FINAL_PLACEMARK_COUNT="0"
 
 for KML_FILE in "$MYPLACES_FILE" "$MYPLACES_ALT"; do
     if [ -f "$KML_FILE" ]; then
-        FINAL_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_FILE" 2>/dev/null || echo "0")
+        FINAL_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_FILE" 2>/dev/null || true)
+    FINAL_PLACEMARK_COUNT=${FINAL_PLACEMARK_COUNT:-0}
         
         # Check for Axial Seamount placemark
         if grep -qi "Axial Seamount" "$KML_FILE" 2>/dev/null; then

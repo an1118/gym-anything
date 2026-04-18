@@ -45,7 +45,8 @@ if [ -f "$MYPLACES_FILE" ]; then
     MYPLACES_EXISTS="true"
     MYPLACES_MTIME=$(stat -c %Y "$MYPLACES_FILE" 2>/dev/null || echo "0")
     MYPLACES_SIZE=$(stat -c %s "$MYPLACES_FILE" 2>/dev/null || echo "0")
-    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_FILE" 2>/dev/null || echo "0")
+    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_FILE" 2>/dev/null || true)
+PLACEMARK_COUNT=${PLACEMARK_COUNT:-0}
     
     # Check if modified during task
     if [ "$MYPLACES_MTIME" -gt "$TASK_START" ]; then

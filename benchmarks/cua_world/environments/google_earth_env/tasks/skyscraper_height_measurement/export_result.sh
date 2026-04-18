@@ -48,7 +48,8 @@ NEW_PLACEMARKS_CREATED="false"
 for path in "${MYPLACES_PATHS[@]}"; do
     if [ -f "$path" ]; then
         MYPLACES_FOUND="$path"
-        COUNT=$(grep -c "<Placemark>" "$path" 2>/dev/null || echo "0")
+        COUNT=$(grep -c "<Placemark>" "$path" 2>/dev/null || true)
+COUNT=${COUNT:-0}
         FINAL_PLACEMARK_COUNT=$((FINAL_PLACEMARK_COUNT + COUNT))
         MTIME=$(stat -c %Y "$path" 2>/dev/null || echo "0")
         if [ "$MTIME" -gt "$FINAL_MYPLACES_MTIME" ]; then

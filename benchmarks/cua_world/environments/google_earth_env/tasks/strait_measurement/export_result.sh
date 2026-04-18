@@ -39,7 +39,8 @@ if [ -f "$MYPLACES_PATH" ]; then
     fi
     
     # Count LineStrings (paths/measurements)
-    NEW_PATH_COUNT=$(grep -c "<LineString>" "$MYPLACES_PATH" 2>/dev/null || echo "0")
+    NEW_PATH_COUNT=$(grep -c "<LineString>" "$MYPLACES_PATH" 2>/dev/null || true)
+    NEW_PATH_COUNT=${NEW_PATH_COUNT:-0}
     INITIAL_PATH_COUNT=$(cat /tmp/initial_path_count.txt 2>/dev/null || echo "0")
     PATHS_ADDED=$((NEW_PATH_COUNT - INITIAL_PATH_COUNT))
     

@@ -76,18 +76,28 @@ echo "Google Earth window: $GE_WINDOW_TITLE"
 KML_CONTENT_INFO="{}"
 if [ "$OUTPUT_EXISTS" = "true" ]; then
     # Check for key elements in KML (basic parsing)
-    HAS_FOLDER=$(grep -c "<Folder>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_POLYGON=$(grep -c "<Polygon>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_LINESTRING=$(grep -c "<LineString>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_POINT=$(grep -c "<Point>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_PLACEMARK=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || echo "0")
+    HAS_FOLDER=$(grep -c "<Folder>" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_FOLDER=${HAS_FOLDER:-0}
+    HAS_POLYGON=$(grep -c "<Polygon>" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_POLYGON=${HAS_POLYGON:-0}
+    HAS_LINESTRING=$(grep -c "<LineString>" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_LINESTRING=${HAS_LINESTRING:-0}
+    HAS_POINT=$(grep -c "<Point>" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_POINT=${HAS_POINT:-0}
+    HAS_PLACEMARK=$(grep -c "<Placemark>" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_PLACEMARK=${HAS_PLACEMARK:-0}
     
     # Check for expected names
-    HAS_SAR_FOLDER=$(grep -c "SAR_MarcusChen" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_BOUNDARY=$(grep -c "Search_Boundary" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_DIVIDER=$(grep -c "Divider" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_SECTOR=$(grep -c "Sector_" "$OUTPUT_PATH" 2>/dev/null || echo "0")
-    HAS_LKP=$(grep -c "LKP_" "$OUTPUT_PATH" 2>/dev/null || echo "0")
+    HAS_SAR_FOLDER=$(grep -c "SAR_MarcusChen" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_SAR_FOLDER=${HAS_SAR_FOLDER:-0}
+    HAS_BOUNDARY=$(grep -c "Search_Boundary" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_BOUNDARY=${HAS_BOUNDARY:-0}
+    HAS_DIVIDER=$(grep -c "Divider" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_DIVIDER=${HAS_DIVIDER:-0}
+    HAS_SECTOR=$(grep -c "Sector_" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_SECTOR=${HAS_SECTOR:-0}
+    HAS_LKP=$(grep -c "LKP_" "$OUTPUT_PATH" 2>/dev/null || true)
+HAS_LKP=${HAS_LKP:-0}
     
     echo ""
     echo "KML Content Summary:"

@@ -42,7 +42,8 @@ if [ -f "$KML_PATH" ]; then
     KML_CONTENT=$(cat "$KML_PATH" 2>/dev/null | head -c 50000 || echo "")
     
     # Count placemarks in KML
-    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_PATH" 2>/dev/null || echo "0")
+    PLACEMARK_COUNT=$(grep -c "<Placemark>" "$KML_PATH" 2>/dev/null || true)
+PLACEMARK_COUNT=${PLACEMARK_COUNT:-0}
     
     # Check for expected placemark names
     HAS_START=$(grep -q "Sinuosity_Start\|sinuosity_start\|Start" "$KML_PATH" 2>/dev/null && echo "true" || echo "false")

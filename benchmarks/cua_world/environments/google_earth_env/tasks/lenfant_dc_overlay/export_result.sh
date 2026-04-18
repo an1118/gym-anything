@@ -51,7 +51,8 @@ HAS_LENFANT_OVERLAY="false"
 OVERLAY_BOUNDS=""
 
 if [ -n "$MYPLACES_FILE" ] && [ -f "$MYPLACES_FILE" ]; then
-    OVERLAY_COUNT=$(grep -c "<GroundOverlay>" "$MYPLACES_FILE" 2>/dev/null || echo "0")
+    OVERLAY_COUNT=$(grep -c "<GroundOverlay>" "$MYPLACES_FILE" 2>/dev/null || true)
+OVERLAY_COUNT=${OVERLAY_COUNT:-0}
     
     if [ "$OVERLAY_COUNT" -gt "$INITIAL_COUNT" ]; then
         OVERLAY_ADDED="true"

@@ -105,7 +105,8 @@ NEW_PLACEMARKS="false"
 PLACEMARK_DATA=""
 
 if [ -f /home/ga/.googleearth/myplaces.kml ]; then
-    PLACEMARK_COUNT=$(grep -c "<Placemark>" /home/ga/.googleearth/myplaces.kml 2>/dev/null || echo "0")
+    PLACEMARK_COUNT=$(grep -c "<Placemark>" /home/ga/.googleearth/myplaces.kml 2>/dev/null || true)
+PLACEMARK_COUNT=${PLACEMARK_COUNT:-0}
     
     if [ "$PLACEMARK_COUNT" -gt "$INITIAL_COUNT" ]; then
         NEW_PLACEMARKS="true"

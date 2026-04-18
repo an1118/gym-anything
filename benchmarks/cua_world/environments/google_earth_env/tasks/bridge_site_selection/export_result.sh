@@ -44,7 +44,8 @@ if [ -n "$MYPLACES_PATH" ] && [ -f "$MYPLACES_PATH" ]; then
     echo "Found myplaces.kml at: $MYPLACES_PATH"
     
     # Count final placemarks
-    FINAL_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || echo "0")
+    FINAL_PLACEMARK_COUNT=$(grep -c "<Placemark>" "$MYPLACES_PATH" 2>/dev/null || true)
+FINAL_PLACEMARK_COUNT=${FINAL_PLACEMARK_COUNT:-0}
     
     # Check if file was modified during task
     FILE_MTIME=$(stat -c %Y "$MYPLACES_PATH" 2>/dev/null || echo "0")
