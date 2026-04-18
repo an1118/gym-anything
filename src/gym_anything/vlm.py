@@ -57,7 +57,7 @@ DEFAULT_LOCAL_URL = "http://localhost:8080/v1"
 
 def get_vlm_config() -> Dict[str, Any]:
     """Return VLM configuration derived from environment variables."""
-    backend = os.environ.get("VLM_BACKEND", "local").lower()
+    backend = os.environ.get("VLM_BACKEND", "anthropic").lower()
 
     config: Dict[str, Any] = {
         "backend": backend,
