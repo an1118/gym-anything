@@ -3,7 +3,7 @@
 Verifier for UTM Coordinate Navigation task.
 
 VERIFICATION STRATEGY (Multi-Signal, Anti-Gaming):
-1. Config file check: UTM format enabled (30 points)
+1. Status-bar VLM: UTM format visible on-screen (30 points)
 2. Config modification timestamp (10 points) - anti-gaming
 3. Trajectory VLM: Shows preferences dialog interaction (10 points)
 4. View location check: Near Devils Tower (25 points)
@@ -11,7 +11,19 @@ VERIFICATION STRATEGY (Multi-Signal, Anti-Gaming):
 6. Final VLM: UTM coordinates displayed (10 points)
 
 Total: 100 points
-Pass threshold: 70 points with UTM config enabled (mandatory)
+Pass threshold: 70 points with UTM visible (mandatory)
+
+Note on criterion 1: GE Pro on Linux does not persist the coordinate-format
+preference to ~/.config/Google/GoogleEarthPro.conf via any documented key
+(pre-seeded candidates LatLonDisplayFormat/coordFormat/CoordinateFormat/
+LatLonFormat are all stripped on GE's first read). The setting only exists
+in the running UI, so we verify it by VLM-reading the status-bar strip of
+the final screenshot. The same VLM call also extracts the UTM zone/easting/
+northing; criterion 4 (view location) converts those to WGS84 via the
+`utm` package and haversines against the target. The old source —
+`grep -oE '<latitude>' myplaces.kml | tail -1` in export_result.sh — was
+always reading the last placemark of the default "Sightseeing" folder
+(Google HQ), giving a constant 1656.5 km regardless of the agent's view.
 
 Uses copy_from_env (NOT exec_in_env) and trajectory frames for VLM.
 """
@@ -172,26 +184,102 @@ def verify_utm_coordinate_navigation(traj, env_info, task_info):
             os.unlink(temp_result.name)
     
     # ================================================================
-    # CRITERION 1: UTM format enabled in config (30 points)
+    # CRITERION 1: UTM format visible in status bar (30 points)
+    # Reads the UI directly instead of the config file — see module docstring.
     # ================================================================
     utm_enabled = False
-    if result_data:
-        config_checks = result_data.get('config_checks', {})
-        utm_enabled = config_checks.get('utm_enabled', False)
-        config_format = config_checks.get('config_format_value', -1)
-        
-        details['utm_config'] = {
-            'enabled': utm_enabled,
-            'format_value': config_format
-        }
-        
-        if utm_enabled:
-            score += 30
-            feedback_parts.append("✅ UTM format enabled in config (30pts)")
-        else:
-            feedback_parts.append(f"❌ UTM format not enabled (format={config_format}, expected=2)")
+    if query_vlm:
+        temp_screenshot = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+        temp_strip = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+        try:
+            copy_from_env("/tmp/task_final_state.png", temp_screenshot.name)
+            if os.path.getsize(temp_screenshot.name) > 1000:
+                # Crop the bottom-right status-bar strip where GE prints coords.
+                from PIL import Image
+                img = Image.open(temp_screenshot.name)
+                w, h = img.size
+                strip = img.crop((w // 2, h - 60, w, h))
+                # Upscale so small text is legible to the VLM.
+                strip = strip.resize(
+                    (strip.size[0] * 2, strip.size[1] * 3), Image.LANCZOS
+                )
+                strip.save(temp_strip.name)
+
+                vlm_result = query_vlm(
+                    prompt=(
+                        "You are looking at the bottom-right status bar of "
+                        "Google Earth Pro. UTM-style coordinates look like "
+                        "'13 T 522598.36 m E 4937506.82 m N'. Decimal/DMS "
+                        "coordinates look like "
+                        "\"25°00'00.62\\\" N 39°59'59.67\\\" W\". "
+                        "Respond with a single JSON object on one line, no "
+                        "prose, no code fence. Schema: "
+                        '{"utm_displayed": <bool>, '
+                        '"zone_number": <int 1-60 or null>, '
+                        '"zone_letter": <single uppercase letter C-X or null>, '
+                        '"easting": <float meters or null>, '
+                        '"northing": <float meters or null>}. '
+                        "If coordinates are not UTM or unreadable, set "
+                        "utm_displayed=false and all others to null."
+                    ),
+                    image=temp_strip.name,
+                )
+
+                if vlm_result.get('success'):
+                    parsed = vlm_result.get('parsed') or {}
+                    utm_enabled = bool(parsed.get('utm_displayed'))
+                    details['utm_status_bar'] = {
+                        'response': (vlm_result.get('response') or '')[:200],
+                        'visible': utm_enabled,
+                        'zone_number': parsed.get('zone_number'),
+                        'zone_letter': parsed.get('zone_letter'),
+                        'easting': parsed.get('easting'),
+                        'northing': parsed.get('northing'),
+                    }
+                    if utm_enabled:
+                        score += 30
+                        feedback_parts.append(
+                            "✅ UTM format visible in status bar (30pts)"
+                        )
+                        # Convert UTM → WGS84 lat/lon for the view-location
+                        # criterion below. Cache on `details` so Criterion 3
+                        # can read it without another VLM call.
+                        try:
+                            import utm as _utm
+                            zn = parsed.get('zone_number')
+                            zl = parsed.get('zone_letter')
+                            ea = parsed.get('easting')
+                            no = parsed.get('northing')
+                            if (zn is not None and zl and ea is not None
+                                    and no is not None):
+                                lat, lon = _utm.to_latlon(
+                                    float(ea), float(no), int(zn), zl
+                                )
+                                details['view_latlon_from_vlm'] = {
+                                    'lat': float(lat), 'lon': float(lon),
+                                }
+                        except Exception as e:
+                            logger.warning(
+                                f"UTM→lat/lon conversion failed: {e}"
+                            )
+                    else:
+                        feedback_parts.append(
+                            "❌ UTM format not visible in status bar"
+                        )
+                else:
+                    details['utm_status_bar_error'] = vlm_result.get('error', '')
+                    feedback_parts.append("⚠️ UTM status-bar VLM query failed")
+            else:
+                feedback_parts.append("❌ Final screenshot too small/empty")
+        except Exception as e:
+            logger.warning(f"UTM status-bar check error: {e}")
+            feedback_parts.append(f"⚠️ UTM status-bar check error: {e}")
+        finally:
+            for f in (temp_screenshot.name, temp_strip.name):
+                if os.path.exists(f):
+                    os.unlink(f)
     else:
-        feedback_parts.append("❌ Could not read config state")
+        feedback_parts.append("❌ VLM unavailable for UTM status-bar check")
     
     # ================================================================
     # CRITERION 2: Config modified during task (10 points) - Anti-gaming
@@ -215,29 +303,50 @@ def verify_utm_coordinate_navigation(traj, env_info, task_info):
     
     # ================================================================
     # CRITERION 3: View location check (25 points)
+    # Uses the lat/lon derived in Criterion 1 from the status-bar UTM
+    # coordinates (converted via the `utm` package). The previous
+    # source — `grep -oE '<latitude>' myplaces.kml | tail -1` in
+    # export_result.sh — never reflected the GE view and always read
+    # the last placemark in the default "Sightseeing" folder
+    # (Google HQ, ~1656 km from Devils Tower) regardless of where the
+    # agent actually navigated.
     # ================================================================
     view_near_target = False
-    if result_data:
-        view_info = result_data.get('view_info', {})
-        extracted_lat = view_info.get('extracted_lat', 0)
-        extracted_lon = view_info.get('extracted_lon', 0)
-        
-        if extracted_lat != 0 and extracted_lon != 0:
-            distance = haversine_distance(target_lat, target_lon, extracted_lat, extracted_lon)
-            details['view_distance_km'] = distance
-            
-            if distance <= tolerance_km:
-                view_near_target = True
-                score += 25
-                feedback_parts.append(f"✅ View near Devils Tower ({distance:.1f}km away) (25pts)")
-            elif distance <= tolerance_km * 2:
-                score += 15
-                feedback_parts.append(f"⚠️ View somewhat near target ({distance:.1f}km away) (15pts)")
-            else:
-                feedback_parts.append(f"❌ View far from target ({distance:.1f}km away)")
+    view_latlon = details.get('view_latlon_from_vlm') or {}
+    view_lat = view_latlon.get('lat')
+    view_lon = view_latlon.get('lon')
+
+    if view_lat is not None and view_lon is not None:
+        distance = haversine_distance(
+            target_lat, target_lon, view_lat, view_lon
+        )
+        details['view_distance_km'] = distance
+
+        if distance <= tolerance_km:
+            view_near_target = True
+            score += 25
+            feedback_parts.append(
+                f"✅ View near Devils Tower ({distance:.1f}km away) (25pts)"
+            )
+        elif distance <= tolerance_km * 2:
+            score += 15
+            feedback_parts.append(
+                f"⚠️ View somewhat near target ({distance:.1f}km away) (15pts)"
+            )
         else:
-            details['view_distance_km'] = None
-            feedback_parts.append("⚠️ Could not extract view coordinates from files")
+            feedback_parts.append(
+                f"❌ View far from target ({distance:.1f}km away)"
+            )
+    else:
+        details['view_distance_km'] = None
+        if utm_enabled:
+            feedback_parts.append(
+                "⚠️ UTM visible but coords not parseable — cannot score view"
+            )
+        else:
+            feedback_parts.append(
+                "❌ No UTM coordinates to derive view location from"
+            )
     
     # ================================================================
     # CRITERION 4-5: VLM Trajectory Verification (10 points)
@@ -355,7 +464,7 @@ def verify_utm_coordinate_navigation(traj, env_info, task_info):
     # FINAL SCORING
     # ================================================================
     details['score_breakdown'] = {
-        'utm_config': 30 if utm_enabled else 0,
+        'utm_status_bar': 30 if utm_enabled else 0,
         'config_modified': 10 if config_modified else (3 if utm_enabled else 0),
         'view_location': 25 if view_near_target else 0,
         'trajectory_vlm': trajectory_score,
@@ -375,7 +484,7 @@ def verify_utm_coordinate_navigation(traj, env_info, task_info):
         feedback = f"✅ PASSED - {feedback}"
     else:
         if not utm_enabled:
-            feedback = f"❌ FAILED (UTM not enabled - mandatory) - {feedback}"
+            feedback = f"❌ FAILED (UTM not visible in status bar - mandatory) - {feedback}"
         else:
             feedback = f"❌ FAILED (score {score} < 70) - {feedback}"
     

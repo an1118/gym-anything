@@ -33,6 +33,7 @@ dependencies = [
     "PyYAML>=6.0",
     "requests>=2.31",
     "rich>=13.0",
+    "utm>=0.7",          # UTM⇄WGS84 conversion (used by GE verifiers)
 ]
 
 [project.optional-dependencies]
