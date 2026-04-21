@@ -19,6 +19,49 @@ def _resolve_security_runtime(spec: EnvSpec, *, base_dir: Optional[Path] = None)
     return spec
 
 
+def _resolve_relative_paths(spec: EnvSpec, env_dir: Path) -> EnvSpec:
+    """Absolutize path-typed fields in the env spec at load time.
+
+    Without this, fields like ``recording.output_dir`` and ``mounts[*].source``
+    are resolved against the process cwd at use-time — unsafe in the presence
+    of parallel workers or long-lived envs where cwd can drift between load
+    and use (the runner's ThreadPoolExecutor shares cwd across workers).
+
+    Two path conventions coexist in existing env.json files:
+
+    - Explicit env-dir-relative (starts with ``./`` or ``../``): anchor to the
+      env.json's directory. This is the natural meaning when authoring new
+      envs (e.g. ``./artifacts``).
+
+    - Implicit ga-root-relative (e.g. ``benchmarks/cua_world/.../scripts``):
+      anchor to the gym-anything package root. Most existing env.json files
+      use this convention because the runner historically ``chdir``'d to the
+      package root before ``env.reset``.
+
+    Absolute paths are left as-is.
+    """
+    env_dir = Path(env_dir).resolve()
+    # ga_root = parent of the `src/` dir containing the gym_anything package.
+    # config/loading.py lives at {ga_root}/src/gym_anything/config/loading.py,
+    # so four parents up gets us there.
+    ga_root = Path(__file__).resolve().parents[3]
+
+    def _resolve(p: str) -> str:
+        if not p:
+            return p
+        if os.path.isabs(p):
+            return p
+        if p.startswith("./") or p.startswith("../"):
+            return str((env_dir / p).resolve())
+        return str((ga_root / p).resolve())
+
+    spec.recording.output_dir = _resolve(spec.recording.output_dir)
+    for m in spec.mounts:
+        m.source = _resolve(m.source)
+
+    return spec
+
+
 def _load_envspec(path_or_obj: Union[str, os.PathLike, Dict[str, Any], EnvSpec]) -> EnvSpec:
     if isinstance(path_or_obj, EnvSpec):
         return _resolve_security_runtime(path_or_obj)
@@ -29,7 +72,8 @@ def _load_envspec(path_or_obj: Union[str, os.PathLike, Dict[str, Any], EnvSpec])
         if isinstance(data, dict) and data.get("base"):
             base = load_preset_env_dict(data["base"])  # raises if unknown
             data = deep_merge_env_dict(base, data)
-        return _resolve_security_runtime(EnvSpec.from_dict(data), base_dir=path.parent)
+        spec = _resolve_security_runtime(EnvSpec.from_dict(data), base_dir=path.parent)
+        return _resolve_relative_paths(spec, env_dir=path.parent)
     if isinstance(path_or_obj, dict):
         d = path_or_obj
         if d.get("base"):
