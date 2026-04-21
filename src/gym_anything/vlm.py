@@ -55,8 +55,10 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_MODELS = {
     "local": "Qwen/Qwen3-VL-8B-Instruct",
-    "anthropic": "claude-sonnet-4-5",
-    "claude_cli": "claude-sonnet-4-5",
+    # Default to the same model the agent uses (see run.py --model default)
+    # so verifier judgments are made by the same family grading the agent.
+    "anthropic": "claude-opus-4-6",
+    "claude_cli": "claude-opus-4-6",
     "openai": "gpt-4o",
 }
 
