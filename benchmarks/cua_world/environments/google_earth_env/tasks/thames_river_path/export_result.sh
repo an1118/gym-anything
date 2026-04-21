@@ -83,7 +83,7 @@ FIRST_COORD_LON="0"
 LAST_COORD_LAT="0"
 LAST_COORD_LON="0"
 PATH_NAME=""
-ALL_COORDINATES=""
+ALL_COORDINATES="[]"
 
 if [ "$KML_EXISTS" = "true" ] && [ -n "$ACTUAL_PATH" ]; then
     # If KMZ, extract KML first
