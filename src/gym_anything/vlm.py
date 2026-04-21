@@ -6,17 +6,24 @@ tasks within the Gym-Anything framework. Verifiers receive ``query_vlm`` via
 ``env_info['query_vlm']`` and can call it with a prompt and optional images.
 
 Supported backends:
-  - ``local``     – OpenAI-compatible server (vLLM, etc.)
-  - ``openai``    – OpenAI API (GPT-4o, etc.)
-  - ``anthropic`` – Anthropic Claude
+  - ``local``      – OpenAI-compatible server (vLLM, etc.)
+  - ``openai``     – OpenAI API (GPT-4o, etc.)
+  - ``anthropic``  – Anthropic Claude via the raw SDK
+  - ``claude_cli`` – Anthropic Claude via the ``claude`` CLI subprocess.
+                     Uses whatever credential ``claude`` is logged into
+                     (e.g. a Claude Code subscription via ``claude login``)
+                     rather than ANTHROPIC_API_KEY, which is useful when
+                     the raw API key is rate-limited or out of budget.
 
 Configuration is read from environment variables:
-  VLM_BACKEND   : "local" (default), "openai", or "anthropic"
+  VLM_BACKEND   : "anthropic" (default), "claude_cli", "openai", or "local"
   VLM_MODEL     : Model name (defaults per backend below)
   VLM_BASE_URL  : Base URL for local server (default "http://localhost:8080/v1")
   VLM_API_KEY   : API key for local server (default "EMPTY")
   VLM_MAX_RETRIES : Max retry attempts (default 3)
-  ANTHROPIC_API_KEY : Anthropic API key
+  VLM_CLAUDE_CLI  : Path to the ``claude`` binary (default "claude" in PATH)
+  VLM_CLAUDE_TIMEOUT : Per-call subprocess timeout in seconds (default 120)
+  ANTHROPIC_API_KEY : Anthropic API key (for "anthropic" backend only)
   OPENAI_API_KEY    : OpenAI API key
 
 Usage inside a verifier::
@@ -49,6 +56,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_MODELS = {
     "local": "Qwen/Qwen3-VL-8B-Instruct",
     "anthropic": "claude-sonnet-4-5",
+    "claude_cli": "claude-sonnet-4-5",
     "openai": "gpt-4o",
 }
 
@@ -70,6 +78,9 @@ def get_vlm_config() -> Dict[str, Any]:
         config["api_key"] = os.environ.get("VLM_API_KEY", "EMPTY")
     elif backend == "anthropic":
         config["api_key"] = os.environ.get("ANTHROPIC_API_KEY", "")
+    elif backend == "claude_cli":
+        config["cli_path"] = os.environ.get("VLM_CLAUDE_CLI", "claude")
+        config["cli_timeout"] = int(os.environ.get("VLM_CLAUDE_TIMEOUT", "120"))
     elif backend == "openai":
         config["api_key"] = os.environ.get("OPENAI_API_KEY", "")
 
@@ -277,6 +288,116 @@ def _query_anthropic(
         return _error_result(str(e))
 
 
+def _query_claude_cli(
+    prompt: str,
+    images: List[Dict[str, str]],
+    config: Dict[str, Any],
+    max_tokens: int,
+    temperature: float,
+) -> Dict[str, Any]:
+    """Query Claude via the ``claude -p`` CLI subprocess.
+
+    Uses stream-json I/O so we can send inline image content blocks and
+    parse the assistant's reply from the emitted ``assistant`` event. The
+    CLI chooses its own credential (``apiKeySource``) — typically a
+    ``/login managed key`` tied to a Claude subscription — so this backend
+    bypasses ANTHROPIC_API_KEY entirely.
+
+    Note: ``temperature`` and ``max_tokens`` are not honored — ``claude -p``
+    doesn't expose them as flags. Use a lower backend (``anthropic``) if
+    you need precise sampling control.
+    """
+    import subprocess
+
+    cli = config.get("cli_path", "claude")
+    timeout = int(config.get("cli_timeout", 120))
+
+    # Build the same user-message payload we'd POST to Anthropic, then wrap
+    # it in a stream-json envelope (one message per line on stdin).
+    user_msg = _build_anthropic_messages(prompt, images)[0]
+    stream_msg = {"type": "user", "message": user_msg}
+    stdin = json.dumps(stream_msg) + "\n"
+
+    argv = [
+        cli, "-p",
+        "--input-format", "stream-json",
+        "--output-format", "stream-json",
+        "--verbose",
+        "--model", config["model"],
+        "--allow-dangerously-skip-permissions",
+    ]
+
+    for attempt in range(config["max_retries"]):
+        try:
+            proc = subprocess.run(
+                argv, input=stdin,
+                capture_output=True, text=True, timeout=timeout,
+            )
+        except FileNotFoundError:
+            return _error_result(
+                f"claude CLI not found at {cli!r}. Install it or set VLM_CLAUDE_CLI."
+            )
+        except subprocess.TimeoutExpired:
+            logger.warning("claude CLI timed out after %ds (attempt %d/%d)",
+                           timeout, attempt + 1, config["max_retries"])
+            if attempt < config["max_retries"] - 1:
+                time.sleep(2 ** attempt)
+                continue
+            return _error_result(f"claude CLI timed out after {timeout}s")
+
+        if proc.returncode != 0:
+            err = (proc.stderr or proc.stdout).strip()[:500]
+            logger.warning("claude CLI exit=%d (attempt %d/%d): %s",
+                           proc.returncode, attempt + 1, config["max_retries"], err)
+            if attempt < config["max_retries"] - 1:
+                time.sleep(2 ** attempt)
+                continue
+            return _error_result(f"claude CLI failed (exit {proc.returncode}): {err}")
+
+        # Parse the stream-json output: collect assistant text and result status.
+        response_text = ""
+        api_error_status = None
+        for line in proc.stdout.splitlines():
+            if not line.strip():
+                continue
+            try:
+                event = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if event.get("type") == "assistant":
+                for block in event.get("message", {}).get("content", []):
+                    if isinstance(block, dict) and block.get("type") == "text":
+                        response_text += block.get("text", "")
+            elif event.get("type") == "result":
+                api_error_status = event.get("api_error_status")
+                if event.get("is_error"):
+                    err = event.get("result") or f"api_error_status={api_error_status}"
+                    if attempt < config["max_retries"] - 1:
+                        logger.warning("claude CLI result error (attempt %d/%d): %s",
+                                       attempt + 1, config["max_retries"], err)
+                        time.sleep(2 ** attempt)
+                        response_text = ""  # discard partial and retry
+                        break
+                    return _error_result(f"claude CLI error: {err}")
+        else:
+            # Loop completed normally — we have a good response if text is non-empty.
+            if response_text:
+                return {
+                    "success": True,
+                    "response": response_text,
+                    "parsed": parse_vlm_json(response_text),
+                    "error": "",
+                }
+            if attempt < config["max_retries"] - 1:
+                logger.warning("claude CLI returned empty response (attempt %d/%d)",
+                               attempt + 1, config["max_retries"])
+                time.sleep(2 ** attempt)
+                continue
+            return _error_result("claude CLI returned no assistant content")
+
+    return _error_result("claude CLI: all retries exhausted")
+
+
 def _error_result(msg: str) -> Dict[str, Any]:
     return {"success": False, "response": "", "parsed": {}, "error": msg}
 
@@ -332,6 +453,8 @@ def query_vlm(
     backend = config["backend"]
     if backend == "anthropic":
         return _query_anthropic(prompt, encoded_images, config, max_tokens, temperature)
+    elif backend == "claude_cli":
+        return _query_claude_cli(prompt, encoded_images, config, max_tokens, temperature)
     elif backend == "openai":
         return _query_openai_api(prompt, encoded_images, config, max_tokens, temperature, top_p)
     else:  # "local" (default)
