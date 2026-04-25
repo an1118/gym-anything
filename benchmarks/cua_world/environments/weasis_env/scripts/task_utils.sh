@@ -76,23 +76,75 @@ is_weasis_running() {
     pgrep -f "weasis" > /dev/null 2>&1
 }
 
-# Launch Weasis if not running
-ensure_weasis_running() {
-    if ! is_weasis_running; then
-        echo "Starting Weasis..."
-        DISPLAY=:1 /snap/bin/weasis > /tmp/weasis_ga.log 2>&1 &
-        sleep 5
-        wait_for_weasis 60
+# Dismiss the GNOME activities overview (the "Type to search" shade) if it
+# is currently intercepting the desktop. When it is active, newly-launched
+# windows render under it and `wmctrl -b add,maximized_*` silently no-ops,
+# which leaves every task screenshot looking like a 1520x800 floating
+# window with an overview bar on top. xdotool Escape is the least
+# invasive way to dismiss it.
+dismiss_gnome_overview() {
+    DISPLAY=:1 xdotool key Escape 2>/dev/null || true
+}
+
+# Maximize the Weasis window, if one exists. Safe to call more than once.
+maximize_weasis() {
+    local wid
+    wid=$(get_weasis_window_id)
+    if [ -n "$wid" ]; then
+        DISPLAY=:1 wmctrl -i -r "$wid" -b add,maximized_vert,maximized_horz 2>/dev/null || true
     fi
 }
 
-# Launch Weasis with a DICOM file
+# Canonical launch path used by every task's setup_task.sh. Handles:
+#   1. dismissing GNOME activities overview (else maximize silently fails)
+#   2. launching Weasis as the `ga` user on DISPLAY=:1
+#      (sudo -u env ... rather than `su - ga -c`, because `su -` runs a
+#       login shell which re-triggers GNOME session hooks and puts the
+#       desktop right back into overview state)
+#   3. waiting for the Weasis window to appear
+#   4. dismissing the first-run disclaimer if it fired
+#   5. maximizing the window so the agent sees the full UI
+# Usage:
+#   launch_weasis_with_dicom                  # no data arg
+#   launch_weasis_with_dicom /path/to/file    # open file
+#   launch_weasis_with_dicom /path/to/dir     # open directory
 launch_weasis_with_dicom() {
-    local dicom_path="$1"
-    echo "Launching Weasis with: $dicom_path"
-    DISPLAY=:1 /snap/bin/weasis "$dicom_path" > /tmp/weasis_ga.log 2>&1 &
-    sleep 5
+    local dicom_path="${1:-}"
+
+    dismiss_gnome_overview
+    sleep 0.5
+
+    if [ -n "$dicom_path" ]; then
+        echo "Launching Weasis with: $dicom_path"
+        sudo -u ga env DISPLAY=:1 weasis "$dicom_path" > /tmp/weasis_ga.log 2>&1 &
+    else
+        echo "Launching Weasis (no data arg)..."
+        sudo -u ga env DISPLAY=:1 weasis > /tmp/weasis_ga.log 2>&1 &
+    fi
+
     wait_for_weasis 60
+    sleep 3
+
+    dismiss_first_run_dialog
+    dismiss_gnome_overview
+    sleep 0.5
+
+    maximize_weasis
+    sleep 1
+}
+
+# Ensure Weasis is running; only launches if the window isn't already
+# present. Used by tasks that want to preserve a previously-launched
+# session (e.g. across setup phases).
+ensure_weasis_running() {
+    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "weasis"; then
+        # Already visible — still nudge overview/maximize so the agent
+        # sees a consistent full-screen starting state.
+        dismiss_gnome_overview
+        maximize_weasis
+        return 0
+    fi
+    launch_weasis_with_dicom "$@"
 }
 
 # Get list of DICOM files in a directory

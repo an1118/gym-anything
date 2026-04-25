@@ -98,8 +98,7 @@ sleep 2
 
 # Launch Weasis with the noisy DICOM file
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$DICOM_FILE_PATH' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$DICOM_FILE_PATH' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$DICOM_FILE_PATH"
 sleep 8
 
 wait_for_weasis 60

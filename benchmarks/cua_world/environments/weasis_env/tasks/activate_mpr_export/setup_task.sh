@@ -118,8 +118,7 @@ sleep 2
 
 # Launch Weasis loading the entire 60-slice directory as a single volume
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$VOLUME_DIR' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$VOLUME_DIR' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$VOLUME_DIR"
 
 # Wait for application and handle heavy loading 
 wait_for_weasis 60

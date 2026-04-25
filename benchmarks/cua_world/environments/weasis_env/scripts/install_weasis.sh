@@ -7,27 +7,43 @@ echo "=== Installing Weasis DICOM Viewer and related packages ==="
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
 
-# Install snapd for snap package installation
-echo "Installing snapd..."
-apt-get install -y snapd
+# Install Weasis directly from upstream .deb.
+#
+# We previously tried `snap install weasis` first and fell back to the
+# .deb on failure, but snap fundamentally does not work inside
+# sysbox-runc: snap packages are squashfs images, and sysbox's user
+# namespacing blocks squashfs mounts with
+#
+#   error: system does not fully support snapd: cannot mount squashfs
+#          image using "squashfs"
+#
+# That's a permanent incompatibility, not a timing issue. The snap
+# branch therefore always fails, always falls through, and adds 30+
+# seconds + misleading log noise to every cold container start. Go
+# straight to the .deb.
+WEASIS_VERSION="4.5.1"
+echo "Installing Weasis ${WEASIS_VERSION} from upstream .deb..."
+wget -q --timeout=60 \
+    "https://github.com/nroduit/Weasis/releases/download/v${WEASIS_VERSION}/weasis_${WEASIS_VERSION}-1_amd64.deb" \
+    -O /tmp/weasis.deb
+dpkg -i /tmp/weasis.deb || apt-get install -f -y
+rm -f /tmp/weasis.deb
 
-# Ensure snapd socket is available
-systemctl enable snapd.socket || true
-systemctl start snapd.socket || true
+# The .deb installs the binary at /opt/weasis/bin/Weasis (capital W,
+# outside any PATH dir). Task scripts call `command -v weasis` — link
+# a lowercase shim into /usr/local/bin so those checks succeed.
+ln -sf /opt/weasis/bin/Weasis /usr/local/bin/weasis
 
-# Wait for snapd to be ready
-sleep 5
-
-# Install Weasis via snap
-echo "Installing Weasis via snap..."
-snap install weasis || {
-    echo "Snap installation failed, trying alternative method..."
-    # Alternative: Download native installer
-    WEASIS_VERSION="4.5.1"
-    wget -q "https://github.com/nroduit/Weasis/releases/download/v${WEASIS_VERSION}/weasis_${WEASIS_VERSION}-1_amd64.deb" -O /tmp/weasis.deb
-    dpkg -i /tmp/weasis.deb || apt-get install -f -y
-    rm -f /tmp/weasis.deb
-}
+# Fail the hook loudly if the install didn't actually produce a working
+# binary. Without this, the script would otherwise silently succeed,
+# every task's setup_task.sh would be the first thing to notice, and
+# every task in the domain would score 0 for reasons unrelated to the
+# agent's behavior.
+if ! command -v weasis >/dev/null; then
+    echo "FATAL: Weasis install did not produce /usr/local/bin/weasis" >&2
+    exit 1
+fi
+echo "Weasis binary: $(command -v weasis) -> $(readlink -f "$(command -v weasis)")"
 
 # Install GUI automation tools
 echo "Installing automation tools..."
@@ -45,11 +61,19 @@ apt-get install -y \
     python3-pip \
     python3-dev
 
-pip3 install --no-cache-dir \
-    pillow \
-    pydicom \
-    numpy \
-    opencv-python-headless
+# Ubuntu 24.04 ships Python 3.12 with PEP 668 enabled, so pip into the
+# system Python requires --break-system-packages. Without this flag pip
+# silently fails and every task that synth-generates DICOM via pydicom
+# crashes at setup (activate_mpr_export, probe_pixel_density, etc.).
+#
+# We prefer apt-packaged versions where they exist (faster cold start,
+# no PEP-668 dance, matches what the Dockerfile already does for
+# numpy/pillow/scipy) and only fall back to pip for pydicom, which
+# isn't packaged in the default Ubuntu repos.
+apt-get install -y \
+    python3-opencv
+pip3 install --no-cache-dir --break-system-packages \
+    pydicom
 
 # Install network tools
 echo "Installing network tools..."

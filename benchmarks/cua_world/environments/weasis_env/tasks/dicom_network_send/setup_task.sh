@@ -43,8 +43,7 @@ fi
 
 # 5. Launch Weasis directly with the loaded series
 echo "Launching Weasis with $SAMPLE_DIR..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$SAMPLE_DIR' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$SAMPLE_DIR' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$SAMPLE_DIR"
 
 # Wait for Weasis to fully load the images
 wait_for_weasis 60

@@ -79,11 +79,7 @@ pkill -f weasis 2>/dev/null || true
 sleep 1
 
 echo "Launching Weasis..."
-if command -v /snap/bin/weasis &> /dev/null; then
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis '$SAMPLE_DIR' > /tmp/weasis_ga.log 2>&1 &"
-else
-    su - ga -c "DISPLAY=:1 weasis '$SAMPLE_DIR' > /tmp/weasis_ga.log 2>&1 &"
-fi
+launch_weasis_with_dicom "$SAMPLE_DIR"
 
 # Wait for Weasis to load
 wait_for_weasis 60

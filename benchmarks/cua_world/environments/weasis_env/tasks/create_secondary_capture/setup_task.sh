@@ -28,8 +28,7 @@ sleep 2
 
 # Launch Weasis with the sample data
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$SAMPLE_PATH' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$SAMPLE_PATH' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$SAMPLE_PATH"
 
 # Wait for Weasis to start
 sleep 8

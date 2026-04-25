@@ -35,8 +35,7 @@ sleep 2
 
 # Launch Weasis directly with the loaded study to save agent time
 echo "Launching Weasis with CT scan: $DICOM_FILE"
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$DICOM_FILE"
 
 # Wait for Weasis UI to appear
 wait_for_weasis 60

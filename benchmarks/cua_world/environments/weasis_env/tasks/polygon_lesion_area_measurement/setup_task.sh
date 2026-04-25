@@ -106,8 +106,7 @@ sleep 2
 
 # Launch Weasis with the specific DICOM file
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$DICOM_FILE"
 
 # Wait for application to load
 wait_for_weasis 60

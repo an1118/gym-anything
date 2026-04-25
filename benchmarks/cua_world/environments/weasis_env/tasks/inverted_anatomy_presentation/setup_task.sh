@@ -21,8 +21,7 @@ fi
 # Start Weasis if not running
 if ! is_weasis_running; then
     echo "Starting Weasis..."
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis > /tmp/weasis_ga.log 2>&1 &" || \
-    su - ga -c "DISPLAY=:1 weasis > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom
     
     # Wait for Weasis
     wait_for_weasis 60

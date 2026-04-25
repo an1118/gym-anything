@@ -108,8 +108,7 @@ pkill -f weasis 2>/dev/null || true
 sleep 2
 
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$SERIES_DIR' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$SERIES_DIR' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$SERIES_DIR"
 sleep 8
 
 # Wait for Weasis UI

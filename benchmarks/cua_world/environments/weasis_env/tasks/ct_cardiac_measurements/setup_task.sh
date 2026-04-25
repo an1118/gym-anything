@@ -73,41 +73,8 @@ pkill -f weasis 2>/dev/null || true
 sleep 2
 
 echo "Launching Weasis with chest CT data..."
-if command -v /snap/bin/weasis &>/dev/null; then
-    WEASIS_CMD="/snap/bin/weasis"
-elif command -v weasis &>/dev/null; then
-    WEASIS_CMD="weasis"
-else
-    echo "ERROR: Weasis not found"
-    exit 1
-fi
+launch_weasis_with_dicom "$STUDY_DIR"
 
-su - ga -c "DISPLAY=:1 $WEASIS_CMD > /tmp/weasis_ga.log 2>&1 &"
-sleep 8
-
-# Wait for Weasis window
-for i in $(seq 1 30); do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "weasis"; then
-        echo "Weasis window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Dismiss first-run dialog if it appears
-sleep 2
-if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "First Time\|disclaimer\|accept"; then
-    DISPLAY=:1 xdotool key Return 2>/dev/null || true
-    sleep 1
-fi
-
-# Maximize Weasis window for better agent UX
-WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i weasis | head -1 | awk '{print $1}')
-if [ -n "$WID" ]; then
-    DISPLAY=:1 wmctrl -i -r "$WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-fi
-
-sleep 2
 take_screenshot /tmp/ct_cardiac_start_screenshot.png
 
 echo "=== Setup Complete ==="

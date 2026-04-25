@@ -3,6 +3,8 @@
 # Occupation: Radiologic Technologist — neuroradiology key image protocol
 echo "=== Setting up brain_mri_key_images ==="
 
+. /workspace/scripts/task_utils.sh 2>/dev/null || true
+
 export DISPLAY=:1
 
 # ------------------------------------------------------------------
@@ -63,7 +65,7 @@ echo "Task start timestamp recorded: $(cat /tmp/brain_mri_key_images_start_ts)"
 # ------------------------------------------------------------------
 if ! DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "weasis"; then
     echo "Weasis not running — launching..."
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis >> /home/ga/weasis_launch.log 2>&1 &"
+launch_weasis_with_dicom
     # Wait up to 60 seconds for Weasis window
     for i in $(seq 1 30); do
         if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "weasis"; then

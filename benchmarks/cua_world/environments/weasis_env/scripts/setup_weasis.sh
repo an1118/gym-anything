@@ -165,7 +165,7 @@ PREFSEOF
 [Desktop Entry]
 Name=Weasis DICOM Viewer
 Comment=View DICOM medical images
-Exec=/snap/bin/weasis %F
+Exec=weasis %F
 Icon=weasis
 StartupNotify=true
 Terminal=false
@@ -174,10 +174,9 @@ Categories=Graphics;MedicalSoftware;Viewer;
 Type=Application
 DESKTOPEOF
 
-    # If snap not available, use native weasis
-    if ! command -v /snap/bin/weasis &> /dev/null; then
-        sed -i 's|/snap/bin/weasis|weasis|g' "$home_dir/Desktop/Weasis.desktop"
-    fi
+    # (Snap is not used on this platform — install_weasis.sh installs via
+    # .deb and symlinks /usr/local/bin/weasis; the desktop file already
+    # uses that lowercase shim.)
 
     chown $username:$username "$home_dir/Desktop/Weasis.desktop"
     chmod +x "$home_dir/Desktop/Weasis.desktop"
@@ -192,10 +191,9 @@ export DISPLAY=${DISPLAY:-:1}
 # Ensure proper permissions for X11
 xhost +local: 2>/dev/null || true
 
-# Determine Weasis executable
-if command -v /snap/bin/weasis &> /dev/null; then
-    WEASIS_CMD="/snap/bin/weasis"
-elif command -v weasis &> /dev/null; then
+# Determine Weasis executable. install_weasis.sh guarantees
+# /usr/local/bin/weasis; we keep a fallback for defensiveness.
+if command -v weasis &> /dev/null; then
     WEASIS_CMD="weasis"
 else
     echo "Weasis not found!"
@@ -260,7 +258,7 @@ echo "=== Weasis DICOM Viewer configuration completed ==="
 
 echo "Weasis is ready! Users can:"
 echo "  - Launch from desktop shortcut"
-echo "  - Run '/snap/bin/weasis' from terminal"
+echo "  - Run 'weasis' from terminal"
 echo "  - Run '~/launch_weasis.sh <file>' for optimized launch"
 echo "  - Use 'dicom-info <file>' to inspect DICOM files"
 echo ""

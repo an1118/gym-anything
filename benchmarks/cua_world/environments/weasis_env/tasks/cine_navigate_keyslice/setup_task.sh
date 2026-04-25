@@ -97,8 +97,7 @@ echo "Restarting Weasis..."
 pkill -f weasis 2>/dev/null || true
 sleep 2
 
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$CINE_DIR' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$CINE_DIR' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$CINE_DIR"
 
 sleep 8
 wait_for_weasis 60

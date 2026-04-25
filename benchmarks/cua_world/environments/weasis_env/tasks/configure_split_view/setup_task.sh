@@ -21,8 +21,7 @@ sleep 2
 
 # Launch Weasis with the samples directory so multiple images are available to load
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '/home/ga/DICOM/samples' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '/home/ga/DICOM/samples' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "/home/ga/DICOM/samples"
 
 # Wait for Weasis UI to fully appear
 wait_for_weasis 60

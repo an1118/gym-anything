@@ -85,14 +85,6 @@ date +%s > /tmp/radiologist_crossmod_start_ts
 pkill -f weasis 2>/dev/null || true
 sleep 2
 
-if command -v /snap/bin/weasis &>/dev/null; then
-    WEASIS_CMD="/snap/bin/weasis"
-elif command -v weasis &>/dev/null; then
-    WEASIS_CMD="weasis"
-else
-    echo "ERROR: Weasis not found"
-    exit 1
-fi
 
 # Pre-position: launch Weasis WITH the CT data loaded
 CT_FIRST=$(find "$CT_STUDY_DIR" -type f \( -name "*.dcm" -o -name "*.DCM" \) 2>/dev/null | head -1)
@@ -101,9 +93,9 @@ if [ -z "$CT_FIRST" ]; then
 fi
 
 if [ -n "$CT_FIRST" ]; then
-    su - ga -c "DISPLAY=:1 $WEASIS_CMD '$CT_FIRST' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$CT_FIRST"
 else
-    su - ga -c "DISPLAY=:1 $WEASIS_CMD > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom
 fi
 sleep 8
 

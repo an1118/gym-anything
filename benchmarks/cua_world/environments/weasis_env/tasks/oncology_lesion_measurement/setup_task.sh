@@ -3,6 +3,8 @@
 # Occupation: Radiologist — RECIST 1.1 tumor response assessment
 echo "=== Setting up oncology_lesion_measurement ==="
 
+. /workspace/scripts/task_utils.sh 2>/dev/null || true
+
 export DISPLAY=:1
 
 # ------------------------------------------------------------------
@@ -58,7 +60,7 @@ echo "Task start timestamp recorded: $(cat /tmp/oncology_lesion_measurement_star
 # ------------------------------------------------------------------
 if ! DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "weasis"; then
     echo "Weasis not running — launching..."
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis >> /home/ga/weasis_launch.log 2>&1 &"
+launch_weasis_with_dicom
     for i in $(seq 1 30); do
         if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "weasis"; then
             echo "Weasis window appeared after $((i*2))s"

@@ -20,7 +20,7 @@ SAMPLE_DIR="/home/ga/DICOM/samples/vascular_ct"
 echo "Creating synthetic multi-slice CT volume..."
 mkdir -p "$SAMPLE_DIR"
 
-python3 << 'PYEOF'
+SAMPLE_DIR="$SAMPLE_DIR" python3 << 'PYEOF'
 import os
 import numpy as np
 try:
@@ -28,6 +28,9 @@ try:
     from pydicom.uid import generate_uid, ExplicitVRLittleEndian
     import datetime
 
+    # Shell's SAMPLE_DIR is passed via env; heredoc is single-quoted so
+    # Python — not bash — needs to resolve it.
+    SAMPLE_DIR = os.environ["SAMPLE_DIR"]
     size = 256
     num_slices = 30
     study_uid = generate_uid()
@@ -38,7 +41,7 @@ try:
     # vessel at a single point (small dot). A 15mm MIP captures a long segment of it.
     
     for z in range(num_slices):
-        filename = f"/home/ga/DICOM/samples/vascular_ct/slice_{z:03d}.dcm"
+        filename = os.path.join(SAMPLE_DIR, f"slice_{z:03d}.dcm")
         file_meta = Dataset()
         file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
         file_meta.MediaStorageSOPInstanceUID = generate_uid()
@@ -104,8 +107,7 @@ sleep 2
 
 # Launch Weasis with the directory (loads the entire series automatically)
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$SAMPLE_DIR' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$SAMPLE_DIR' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$SAMPLE_DIR"
 
 # Wait for application to be ready
 wait_for_weasis 60

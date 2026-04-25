@@ -118,8 +118,7 @@ sleep 2
 
 # Launch Weasis with the DICOM file
 echo "Launching Weasis with DICOM file..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$DICOM_FILE"
 sleep 8
 
 # Wait for Weasis to load
@@ -137,6 +136,10 @@ take_screenshot /tmp/task_start.png
 
 echo "=== Task setup complete ==="
 echo "A CT image is loaded in Weasis"
-echo "Initial Window Center: $(cat /tmp/initial_wl.json | python3 -c 'import json,sys; print(json.load(sys.stdin).get(\"window_center\", 40))')"
-echo "Initial Window Width: $(cat /tmp/initial_wl.json | python3 -c 'import json,sys; print(json.load(sys.stdin).get(\"window_width\", 400))')"
+# Use double-quoted `python3 -c "..."` with single-quoted Python string
+# literals inside; the previous `'...\"key\"...'` form did not strip the
+# backslashes (they were inside bash single quotes) and Python choked on
+# literal \" with a SyntaxError.
+echo "Initial Window Center: $(python3 -c "import json,sys; print(json.load(sys.stdin).get('window_center', 40))" < /tmp/initial_wl.json)"
+echo "Initial Window Width: $(python3 -c "import json,sys; print(json.load(sys.stdin).get('window_width', 400))" < /tmp/initial_wl.json)"
 echo "Use the Window/Level tool to adjust the display"

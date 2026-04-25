@@ -110,8 +110,7 @@ sleep 2
 
 # Launch Weasis, opening the entire directory to load it as a series
 echo "Launching Weasis with CT directory..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$CT_DIR' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$CT_DIR' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$CT_DIR"
 sleep 10
 
 wait_for_weasis 60

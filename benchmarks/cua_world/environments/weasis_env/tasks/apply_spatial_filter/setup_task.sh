@@ -106,6 +106,20 @@ try:
     ds = pydicom.dcmread(dicom_path)
     pixel_array = ds.pixel_array
 
+    # The Rubo DEMO sample is multi-frame / multi-channel; the rest of
+    # this script assumes a 2D (H, W) grayscale array. Squeeze singleton
+    # dims and collapse extra leading axes (take the first frame) or
+    # collapse a trailing color axis (take the luminance channel).
+    pixel_array = np.squeeze(pixel_array)
+    if pixel_array.ndim == 3:
+        if pixel_array.shape[-1] in (3, 4):
+            pixel_array = pixel_array[..., 0]
+        else:
+            pixel_array = pixel_array[0]
+    if pixel_array.ndim != 2:
+        raise ValueError(f"Unexpected pixel_array shape {pixel_array.shape}; "
+                         f"expected 2D grayscale after normalization.")
+
     # Use native DICOM Window Level settings to mimic standard display view
     wc = float(ds.WindowCenter) if hasattr(ds, 'WindowCenter') else float(np.median(pixel_array))
     ww = float(ds.WindowWidth) if hasattr(ds, 'WindowWidth') else float(np.ptp(pixel_array))
@@ -136,8 +150,7 @@ pkill -f weasis 2>/dev/null || true
 sleep 2
 
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$DICOM_FILE"
 sleep 8
 
 wait_for_weasis 60

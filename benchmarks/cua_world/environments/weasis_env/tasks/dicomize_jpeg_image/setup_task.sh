@@ -68,8 +68,7 @@ sleep 2
 
 # Launch Weasis (Empty State)
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom
 
 # Wait for Weasis to load
 for i in {1..30}; do

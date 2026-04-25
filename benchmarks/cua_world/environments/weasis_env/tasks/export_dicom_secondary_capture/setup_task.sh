@@ -30,12 +30,10 @@ sleep 2
 # Launch Weasis with the target DICOM file
 echo "Launching Weasis with $DICOM_FILE..."
 if [ -n "$DICOM_FILE" ]; then
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &" || \
-    su - ga -c "DISPLAY=:1 weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom "$DICOM_FILE"
 else
     # Fallback to open without file if none exist (should not happen given env setup)
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis > /tmp/weasis_ga.log 2>&1 &" || \
-    su - ga -c "DISPLAY=:1 weasis > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom
 fi
 
 # Wait for Weasis UI to appear

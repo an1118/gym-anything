@@ -207,17 +207,7 @@ pkill -f weasis 2>/dev/null || true
 sleep 3
 
 # ─── Launch Weasis with phantom data pre-loaded ───────────────────────────
-WEASIS_CMD=""
-if command -v /snap/bin/weasis &>/dev/null; then
-    WEASIS_CMD="/snap/bin/weasis"
-elif command -v weasis &>/dev/null; then
-    WEASIS_CMD="weasis"
-else
-    WEASIS_CMD="/snap/bin/weasis"
-fi
-
-su - ga -c "DISPLAY=:1 $WEASIS_CMD '$DATA_DIR' > /tmp/weasis_tissue_char.log 2>&1 &"
-sleep 5
+launch_weasis_with_dicom "$DATA_DIR"
 
 # ─── Wait for Weasis window ───────────────────────────────────────────────
 echo "Waiting for Weasis window..."

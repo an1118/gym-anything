@@ -19,30 +19,18 @@ chmod 777 "$EXPORT_DIR"
 rm -f "$EXPORT_DIR"/*.dcm 2>/dev/null || true
 rm -f "$EXPORT_DIR"/*.DCM 2>/dev/null || true
 
-# Download a real clinical photograph (Melanoma) from Wikimedia Commons
+# Download a real clinical photograph (Melanoma) from Wikimedia Commons.
+# If the fetch fails we fail the setup loudly rather than fall back to a
+# synthetic stand-in — the task is graded against the appearance of a
+# real clinical photo and a fallback defeats that.
 echo "Fetching clinical photograph..."
-wget -q -O "$PHOTO_PATH" "https://upload.wikimedia.org/wikipedia/commons/4/4d/Melanoma.jpg"
-
-# Fallback: Generate an image using Python if wget fails (e.g. no internet)
+if ! wget -q -O "$PHOTO_PATH" "https://upload.wikimedia.org/wikipedia/commons/4/4d/Melanoma.jpg"; then
+    echo "ERROR: wget failed for clinical photograph." >&2
+    exit 1
+fi
 if [ ! -s "$PHOTO_PATH" ]; then
-    echo "Wget failed. Generating synthetic clinical photo fallback..."
-    python3 << 'PYEOF'
-try:
-    from PIL import Image, ImageDraw
-    img = Image.new('RGB', (1024, 768), color=(255, 218, 185))
-    d = ImageDraw.Draw(img)
-    # Draw a simulated skin lesion
-    d.ellipse([400, 300, 600, 480], fill=(80, 30, 30))
-    d.ellipse([420, 320, 580, 460], fill=(50, 20, 20))
-    # Add some texture/noise
-    import random
-    for _ in range(2000):
-        x, y = random.randint(350, 650), random.randint(250, 530)
-        d.point((x, y), fill=(40, 10, 10))
-    img.save('/home/ga/Desktop/clinical_photo.jpg', quality=95)
-except Exception as e:
-    print(f"Failed to create fallback image: {e}")
-PYEOF
+    echo "ERROR: clinical photograph downloaded but is empty." >&2
+    exit 1
 fi
 
 chown ga:ga "$PHOTO_PATH"
@@ -54,8 +42,7 @@ sleep 2
 
 # Launch Weasis without a pre-loaded DICOM file (agent must import)
 echo "Launching Weasis..."
-su - ga -c "DISPLAY=:1 /snap/bin/weasis > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom
 sleep 8
 
 # Wait for Weasis UI to appear

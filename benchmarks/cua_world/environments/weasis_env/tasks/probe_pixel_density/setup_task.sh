@@ -124,8 +124,7 @@ echo "Launching Weasis..."
 pkill -f weasis 2>/dev/null || true
 sleep 2
 
-su - ga -c "DISPLAY=:1 /snap/bin/weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &" || \
-su - ga -c "DISPLAY=:1 weasis '$DICOM_FILE' > /tmp/weasis_ga.log 2>&1 &" || true
+launch_weasis_with_dicom "$DICOM_FILE"
 
 # Wait for Weasis to start
 echo "Waiting for Weasis window..."

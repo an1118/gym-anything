@@ -98,8 +98,7 @@ chmod -R 777 "$EXPORT_DIR"
 # Launch Weasis if not running
 if ! is_weasis_running; then
     echo "Launching Weasis..."
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis > /tmp/weasis_ga.log 2>&1 &" || \
-    su - ga -c "DISPLAY=:1 weasis > /tmp/weasis_ga.log 2>&1 &"
+launch_weasis_with_dicom
     sleep 8
     wait_for_weasis 60
 fi

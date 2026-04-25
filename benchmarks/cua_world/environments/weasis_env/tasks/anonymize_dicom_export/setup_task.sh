@@ -87,18 +87,17 @@ fi
 pkill -f weasis > /dev/null 2>&1 || true
 sleep 2
 
-# Launch Weasis and open the sample directory
+# Launch Weasis and open the sample directory. The `$dicom:get -l DIR`
+# command-string form is a Weasis protocol handler that tells the viewer
+# to scan DIR and auto-populate the DICOM Explorer.
 FIRST_DCM=$(find /home/ga/DICOM/samples -type f -name "*.dcm" | head -1)
 if [ -n "$FIRST_DCM" ]; then
     DICOM_DIR=$(dirname "$FIRST_DCM")
     echo "Loading DICOM directory: $DICOM_DIR"
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis '\$dicom:get -l \"$DICOM_DIR\"' > /tmp/weasis_ga.log 2>&1 &" || \
-    su - ga -c "DISPLAY=:1 weasis '\$dicom:get -l \"$DICOM_DIR\"' > /tmp/weasis_ga.log 2>&1 &"
-    sleep 10
+    launch_weasis_with_dicom "\$dicom:get -l \"$DICOM_DIR\""
 else
     echo "Starting Weasis without pre-loading (fallback)..."
-    su - ga -c "DISPLAY=:1 /snap/bin/weasis > /tmp/weasis_ga.log 2>&1 &"
-    sleep 8
+    launch_weasis_with_dicom
 fi
 
 # Wait for Weasis window
