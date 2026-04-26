@@ -83,33 +83,7 @@ xhost +local: 2>/dev/null || true
 # Launch Slicer
 echo "Launching 3D Slicer..."
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer > /tmp/slicer_launch.log 2>&1 &
-SLICER_PID=$!
-
-# Wait for Slicer window to appear
-echo "Waiting for 3D Slicer to start..."
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected after ${i}s"
-        break
-    fi
-    sleep 2
-done
-
-# Additional wait for Slicer to fully initialize
-sleep 5
-
-# Maximize Slicer window
-SLICER_WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-if [ -n "$SLICER_WID" ]; then
-    DISPLAY=:1 wmctrl -i -r "$SLICER_WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$SLICER_WID" 2>/dev/null || true
-    echo "Slicer window maximized"
-fi
-
-# ============================================================
-# Load DICOM data into Slicer
-# ============================================================
-echo "Loading DICOM data into Slicer..."
+wait_for_slicer 90
 
 # Create Python script to load DICOM
 cat > /tmp/load_lidc_dicom.py << 'PYEOF'

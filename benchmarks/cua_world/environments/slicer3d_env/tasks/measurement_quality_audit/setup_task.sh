@@ -346,27 +346,7 @@ SLICERPY
 # Launch Slicer with the setup script
 echo "Launching 3D Slicer with audit task data..."
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/load_audit_task.py > /tmp/slicer_launch.log 2>&1 &
-
-# Wait for Slicer to start
-sleep 10
-for i in {1..60}; do
-    if pgrep -f "Slicer" > /dev/null && DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer started successfully"
-        break
-    fi
-    sleep 2
-done
-
-# Maximize Slicer window
-sleep 5
-WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "Slicer" | head -1 | awk '{print $1}')
-if [ -n "$WID" ]; then
-    DISPLAY=:1 wmctrl -i -r "$WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$WID" 2>/dev/null || true
-fi
-
-# Dismiss any startup dialogs
-sleep 2
+wait_for_slicer 90
 DISPLAY=:1 xdotool key Escape 2>/dev/null || true
 sleep 0.5
 DISPLAY=:1 xdotool key Return 2>/dev/null || true

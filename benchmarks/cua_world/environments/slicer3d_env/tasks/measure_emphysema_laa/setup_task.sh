@@ -326,25 +326,7 @@ export DICOM_DIR="$DICOM_DIR"
 
 # Launch Slicer
 su - ga -c "DISPLAY=:1 DICOM_DIR='$DICOM_DIR' /opt/Slicer/Slicer --python-script '$LOAD_SCRIPT' > /tmp/slicer_emphysema.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start and load data..."
-sleep 15
-
-# Wait for window
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Maximize and focus
-sleep 3
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Take initial screenshot
 take_screenshot /tmp/emphysema_initial.png ga 2>/dev/null || \

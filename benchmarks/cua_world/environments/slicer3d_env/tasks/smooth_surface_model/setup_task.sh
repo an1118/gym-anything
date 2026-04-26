@@ -340,23 +340,7 @@ export DISPLAY=:1
 xhost +local: 2>/dev/null || true
 
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/setup_smooth_task.py > /tmp/slicer_setup.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-sleep 10
-
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Maximize and focus
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 3
+wait_for_slicer 90
 
 # Take initial screenshot
 echo "Capturing initial screenshot..."

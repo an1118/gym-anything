@@ -52,28 +52,7 @@ sleep 2
 # Launch 3D Slicer with MRHead loaded
 echo "Launching 3D Slicer with MRHead brain MRI..."
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer "$SAMPLE_DATA" > /tmp/slicer_launch.log 2>&1 &
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-for i in {1..60}; do
-    if pgrep -f "Slicer" > /dev/null 2>&1; then
-        WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-        if [ -n "$WID" ]; then
-            echo "3D Slicer window detected"
-            break
-        fi
-    fi
-    sleep 2
-done
-
-# Wait additional time for data to load
-echo "Waiting for MRHead data to load..."
-sleep 10
-
-# Maximize window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Dismiss any startup dialogs
 DISPLAY=:1 xdotool key Escape 2>/dev/null || true

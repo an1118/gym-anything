@@ -108,31 +108,7 @@ xhost +local: 2>/dev/null || true
 
 # Start Slicer with the loading script
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-script '$LOAD_SCRIPT' > /tmp/slicer_launch.log 2>&1 &"
-
-echo "Waiting for Slicer to start and load data..."
-sleep 10
-
-# Wait for Slicer window
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer"; then
-        echo "Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Additional wait for volumes to load
-echo "Waiting for volumes to finish loading..."
-sleep 15
-
-# Maximize and focus Slicer
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-sleep 1
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 1
-
-# Verify volumes are loaded by checking scene
-echo "Verifying loaded volumes..."
+wait_for_slicer 90
 VERIFY_SCRIPT="/tmp/verify_volumes.py"
 cat > "$VERIFY_SCRIPT" << 'PYEOF'
 import slicer

@@ -53,30 +53,7 @@ export DISPLAY=:1
 xhost +local: 2>/dev/null || true
 
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$CT_FILE' > /tmp/slicer_launch.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-sleep 10
-
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait for data to load
-echo "Waiting for data to load..."
-sleep 10
-
-# Maximize and focus Slicer window
-WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-if [ -n "$WID" ]; then
-    DISPLAY=:1 wmctrl -i -r "$WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$WID" 2>/dev/null || true
-    sleep 1
-fi
+wait_for_slicer 90
 
 # Record initial slab configuration via Python
 echo "Recording initial slab configuration..."

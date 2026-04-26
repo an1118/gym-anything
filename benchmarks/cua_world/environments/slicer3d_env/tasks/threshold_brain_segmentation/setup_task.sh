@@ -77,28 +77,7 @@ sleep 2
 # Launch Slicer with the sample data pre-loaded
 echo "Launching 3D Slicer with MRHead.nrrd..."
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_DATA' > /tmp/slicer_launch.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-for i in {1..60}; do
-    if pgrep -f "Slicer" > /dev/null 2>&1; then
-        WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "Slicer\|3D Slicer\|MRHead" | head -1 | awk '{print $1}')
-        if [ -n "$WID" ]; then
-            echo "Slicer window detected after ${i}s"
-            break
-        fi
-    fi
-    sleep 1
-done
-
-# Wait additional time for data to fully load
-echo "Waiting for data to load..."
-sleep 10
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Take initial screenshot showing loaded data
 echo "Capturing initial screenshot..."

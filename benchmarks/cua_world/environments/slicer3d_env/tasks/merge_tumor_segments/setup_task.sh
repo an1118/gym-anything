@@ -232,27 +232,7 @@ sleep 2
 # Launch Slicer and run the loading script
 echo "Launching 3D Slicer with BraTS data..."
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/load_brats_segments.py > /tmp/slicer_startup.log 2>&1 &
-
-# Wait for Slicer to fully load
-echo "Waiting for 3D Slicer to start and load data..."
-sleep 15
-
-# Wait for window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Give extra time for data to load
-sleep 10
-
-# Maximize Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Take initial screenshot
 take_screenshot /tmp/merge_segments_initial.png ga

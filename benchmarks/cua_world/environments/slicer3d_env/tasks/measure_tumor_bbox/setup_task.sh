@@ -177,29 +177,7 @@ export DISPLAY=:1
 xhost +local: 2>/dev/null || true
 
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$FLAIR_FILE' > /tmp/slicer_bbox.log 2>&1 &"
-
-echo "Waiting for 3D Slicer to start..."
-sleep 10
-
-# Wait for Slicer window
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait for data to load
-echo "Waiting for data to load..."
-sleep 10
-
-# Maximize and focus Slicer
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-
-# Take initial screenshot
-sleep 2
+wait_for_slicer 90
 DISPLAY=:1 scrot /tmp/bbox_initial.png 2>/dev/null || true
 
 echo ""

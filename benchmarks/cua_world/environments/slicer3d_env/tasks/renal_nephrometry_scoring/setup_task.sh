@@ -361,32 +361,7 @@ sleep 2
 # Launch Slicer with the Python script
 echo "Launching 3D Slicer with kidney CT..."
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/load_kits_ct.py > /tmp/slicer_launch.log 2>&1 &
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to initialize..."
-for i in {1..90}; do
-    if pgrep -f "Slicer" > /dev/null; then
-        WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-        if [ -n "$WID" ]; then
-            echo "3D Slicer window detected"
-            break
-        fi
-    fi
-    sleep 2
-done
-
-# Additional wait for module loading
-sleep 15
-
-# Maximize Slicer window
-WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-if [ -n "$WID" ]; then
-    DISPLAY=:1 wmctrl -i -r "$WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$WID" 2>/dev/null || true
-fi
-
-# Dismiss any startup dialogs
-sleep 2
+wait_for_slicer 90
 DISPLAY=:1 xdotool key Escape 2>/dev/null || true
 sleep 1
 DISPLAY=:1 xdotool key Escape 2>/dev/null || true

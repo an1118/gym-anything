@@ -315,31 +315,7 @@ sleep 3
 # Launch Slicer with the Python script
 echo "Launching 3D Slicer with chest CT..."
 sudo -u ga DISPLAY=:1 CT_FILE="$CT_FILE" /opt/Slicer/Slicer --python-script /tmp/load_chest_ct.py > /tmp/slicer_launch.log 2>&1 &
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-sleep 10
-
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Give extra time for volume to load
-sleep 10
-
-# Maximize and focus Slicer window
-echo "Configuring Slicer window..."
-WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "Slicer\|3D Slicer" | head -1 | awk '{print $1}')
-if [ -n "$WID" ]; then
-    echo "Found Slicer window: $WID"
-    DISPLAY=:1 wmctrl -i -r "$WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    sleep 1
-    DISPLAY=:1 wmctrl -i -a "$WID" 2>/dev/null || true
-    sleep 1
+wait_for_slicer 90
     
     # Dismiss any dialogs
     DISPLAY=:1 xdotool key Escape 2>/dev/null || true

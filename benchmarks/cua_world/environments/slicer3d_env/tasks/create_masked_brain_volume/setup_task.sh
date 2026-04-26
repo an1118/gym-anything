@@ -85,27 +85,7 @@ xhost +local: 2>/dev/null || true
 
 # Start Slicer as ga user
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer > /tmp/slicer_launch.log 2>&1 &
-SLICER_PID=$!
-echo "Slicer launched with PID: $SLICER_PID"
-
-# Wait for Slicer window to appear
-echo "Waiting for 3D Slicer to initialize..."
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected after ${i}s"
-        break
-    fi
-    sleep 2
-done
-
-# Additional wait for full module loading
-echo "Waiting for modules to load..."
-sleep 10
-
-# Maximize and focus window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Capture initial screenshot
 echo "Capturing initial screenshot..."
