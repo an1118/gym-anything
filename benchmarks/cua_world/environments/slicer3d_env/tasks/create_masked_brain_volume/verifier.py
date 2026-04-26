@@ -295,7 +295,7 @@ def verify_create_masked_brain_volume(traj, env_info, task_info):
             # Import trajectory sampling utilities
             from gym_anything.vlm import sample_trajectory_frames
             
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             if frames:
                 vlm_prompt = """Analyze these screenshots from a 3D Slicer session.
 The task was to create a skull-stripped brain volume using the Mask volume effect.

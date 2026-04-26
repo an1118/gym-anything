@@ -249,7 +249,7 @@ def verify_segment_ventricles(traj, env_info, task_info) -> Dict[str, Any]:
                 from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
                 
                 # Sample trajectory frames to verify workflow
-                frames = sample_trajectory_frames(traj, n=4)
+                frames = sample_trajectory_frames(traj, num_samples=4)
                 final_frame = get_final_screenshot(traj)
                 
                 if frames or final_frame:

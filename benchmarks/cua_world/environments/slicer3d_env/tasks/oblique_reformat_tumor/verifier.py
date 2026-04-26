@@ -196,7 +196,7 @@ def verify_oblique_reformat_tumor(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample frames from trajectory
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         
         if frames and len(frames) > 0:
             vlm_prompt = """Analyze these screenshots from a medical imaging task in 3D Slicer.

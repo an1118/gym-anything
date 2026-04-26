@@ -326,7 +326,7 @@ def verify_create_mip_visualization(traj, env_info, task_info) -> Dict[str, Any]
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Get trajectory frames for process verification
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             
             if trajectory_frames:
                 logger.info(f"VLM: Analyzing {len(trajectory_frames)} trajectory frames")

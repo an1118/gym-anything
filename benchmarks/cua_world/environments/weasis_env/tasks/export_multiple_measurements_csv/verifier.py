@@ -148,7 +148,7 @@ def verify_export_multiple_measurements(traj, env_info, task_info):
     # ================================================================
     if VLM_AVAILABLE and traj:
         try:
-            frames = sample_trajectory_frames(traj, n=3)
+            frames = sample_trajectory_frames(traj, num_samples=3)
             final_frame = get_final_screenshot(traj)
             images_to_check = frames + [final_frame] if final_frame else frames
             

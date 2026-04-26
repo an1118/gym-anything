@@ -323,7 +323,7 @@ def verify_anatomical_orientation(traj, env_info, task_info):
             # Try to get trajectory frames
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             final_screenshot = get_final_screenshot(traj)
             
             if trajectory_frames or final_screenshot:

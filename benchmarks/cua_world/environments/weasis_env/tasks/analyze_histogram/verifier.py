@@ -115,7 +115,7 @@ def verify_analyze_histogram(traj, env_info, task_info):
     # Criterion 7: VLM Verification of Trajectory (20 pts)
     # Proves the agent actually opened the UI rather than guessing values
     if vlm_available and traj:
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         if frames:
             prompt = (
                 "You are verifying if an AI agent opened the 'Histogram' or 'Image Statistics' panel in a medical viewer.\n"

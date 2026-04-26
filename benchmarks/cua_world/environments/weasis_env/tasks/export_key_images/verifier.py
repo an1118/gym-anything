@@ -96,7 +96,7 @@ def verify_export_key_images(traj, env_info, task_info):
     vlm_score = 0
     try:
         from gym_anything.vlm import sample_trajectory_frames, query_vlm, get_final_screenshot
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         final_frame = get_final_screenshot(traj)
         if final_frame:
             frames.append(final_frame)

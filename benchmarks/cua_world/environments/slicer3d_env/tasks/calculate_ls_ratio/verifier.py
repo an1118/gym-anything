@@ -288,7 +288,7 @@ def verify_calculate_ls_ratio(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Get trajectory frames - use multiple frames to verify workflow
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if frames and len(frames) > 0:
             # Use VLM to check ROI placement quality

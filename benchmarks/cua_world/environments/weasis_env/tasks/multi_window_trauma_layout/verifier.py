@@ -110,7 +110,7 @@ def verify_multi_window_trauma_layout(traj, env_info, task_info):
     if VLM_AVAILABLE:
         try:
             # Sample frames to give context to the VLM (helps confirm progression to the final state)
-            frames = sample_trajectory_frames(traj, n=3)
+            frames = sample_trajectory_frames(traj, num_samples=3)
             final_frame = get_final_screenshot(traj)
             if final_frame:
                 frames.append(final_frame)

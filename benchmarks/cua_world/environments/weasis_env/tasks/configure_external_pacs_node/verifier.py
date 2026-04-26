@@ -107,7 +107,7 @@ def verify_configure_pacs_node(traj, env_info, task_info):
     # 4. VLM Trajectory Verification (40 points)
     # Even if they didn't save the config, did they do the UI work?
     try:
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         final = get_final_screenshot(traj)
         all_frames = frames + [final] if final else frames
         

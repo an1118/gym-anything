@@ -117,7 +117,7 @@ def verify_tile_series_layout(traj, env_info, task_info):
     
     try:
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         final_frame = get_final_screenshot(traj)
         
         # Include the final frame prominently

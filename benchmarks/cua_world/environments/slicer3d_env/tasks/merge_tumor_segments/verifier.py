@@ -227,7 +227,7 @@ def verify_merge_tumor_segments(traj, env_info, task_info):
         from gym_anything.vlm import query_vlm, sample_trajectory_frames, get_final_screenshot
         
         # Get trajectory frames to verify the process
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         final_screenshot = get_final_screenshot(traj)
         
         if final_screenshot or frames:

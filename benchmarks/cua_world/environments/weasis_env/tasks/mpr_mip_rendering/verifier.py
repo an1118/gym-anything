@@ -106,7 +106,7 @@ def verify_mpr_mip_rendering(traj, env_info, task_info):
     if VLM_AVAILABLE and traj:
         try:
             # Sample trajectory to catch MPR UI interactions
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             final = get_final_screenshot(traj)
             
             if frames and final:

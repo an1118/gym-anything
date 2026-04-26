@@ -407,7 +407,7 @@ def verify_hepatic_vein_confluence_mapping(traj, env_info, task_info):
         query_vlm = env_info.get('query_vlm')
         if query_vlm:
             # Sample trajectory frames to verify workflow
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             final = get_final_screenshot(traj)
             
             if final or frames:

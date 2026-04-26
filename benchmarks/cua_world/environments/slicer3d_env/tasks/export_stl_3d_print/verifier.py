@@ -238,7 +238,7 @@ def verify_export_stl_3d_print(traj, env_info, task_info):
                 
                 frames = []
                 if sample_trajectory_frames:
-                    frames = sample_trajectory_frames(traj, n=3)
+                    frames = sample_trajectory_frames(traj, num_samples=3)
                 elif get_final_screenshot:
                     final = get_final_screenshot(traj)
                     if final:

@@ -183,7 +183,7 @@ def verify_rename_volume_node(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
         
         # Get trajectory frames for process verification
-        traj_frames = sample_trajectory_frames(traj, n=3)
+        traj_frames = sample_trajectory_frames(traj, num_samples=3)
         final_screenshot = get_final_screenshot(traj)
         
         if final_screenshot or traj_frames:

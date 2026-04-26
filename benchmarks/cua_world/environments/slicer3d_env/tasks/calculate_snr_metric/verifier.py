@@ -327,7 +327,7 @@ def verify_snr_metric(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample trajectory frames
-            frames = sample_trajectory_frames(traj, n=3)
+            frames = sample_trajectory_frames(traj, num_samples=3)
             final = get_final_screenshot(traj)
             
             images = frames + ([final] if final else [])

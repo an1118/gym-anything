@@ -197,7 +197,7 @@ def verify_create_3d_tumor_visualization(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
         
         # Get trajectory frames for process verification
-        trajectory_frames = sample_trajectory_frames(traj, n=5) if traj else []
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=5) if traj else []
         final_screenshot = get_final_screenshot(traj) if traj else None
         
         # Also try to get the user's saved screenshot

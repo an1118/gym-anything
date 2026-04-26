@@ -252,7 +252,7 @@ def verify_configure_volume_overlay(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample trajectory frames (not just final screenshot)
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if frames and len(frames) > 0:
             vlm_prompt = """You are verifying a 3D Slicer medical imaging task.

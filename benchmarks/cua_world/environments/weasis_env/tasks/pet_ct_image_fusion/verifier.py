@@ -96,7 +96,7 @@ def verify_pet_ct_fusion(traj, env_info, task_info):
     if VLM_AVAILABLE and file_valid:
         try:
             # Sample throughout workflow (trajectory frames) + final desktop state
-            frames = sample_trajectory_frames(traj, n=3)
+            frames = sample_trajectory_frames(traj, num_samples=3)
             final = get_final_screenshot(traj)
             
             # Form image array

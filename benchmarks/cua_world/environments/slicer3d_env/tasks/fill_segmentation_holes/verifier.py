@@ -217,7 +217,7 @@ def verify_fill_segmentation_holes(traj, env_info, task_info):
             # Get trajectory frames to verify work was done
             frames = []
             if sample_trajectory_frames:
-                frames = sample_trajectory_frames(traj, n=4)
+                frames = sample_trajectory_frames(traj, num_samples=4)
             
             final_frame = None
             if get_final_screenshot:

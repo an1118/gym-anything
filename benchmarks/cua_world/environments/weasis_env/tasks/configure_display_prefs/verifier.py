@@ -124,7 +124,7 @@ def verify_configure_display_prefs(traj, env_info, task_info):
     # 4. VLM Trajectory Verification (15 pts)
     if VLM_AVAILABLE and traj:
         try:
-            frames = sample_trajectory_frames(traj, n=6)
+            frames = sample_trajectory_frames(traj, num_samples=6)
             vlm_res = query_vlm(prompt=VLM_TRAJECTORY_PROMPT, images=frames)
             
             if vlm_res and vlm_res.get('success'):

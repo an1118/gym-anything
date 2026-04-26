@@ -103,7 +103,7 @@ def verify_measure_and_export(traj, env_info, task_info):
 
         # Evaluate Trajectory: Did they use the measurement tool? (25 points)
         try:
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             if frames:
                 prompt_traj = (
                     "You are verifying an agent's workflow in a medical imaging viewer (Weasis). "

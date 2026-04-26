@@ -125,7 +125,7 @@ def verify_export_clean_and_annotated_views(traj, env_info, task_info):
 
     # 3. VLM Verification (25 pts)
     try:
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         if frames:
             vlm_result = query_vlm(images=frames, prompt=VLM_PROMPT)
             if vlm_result and vlm_result.get("success"):

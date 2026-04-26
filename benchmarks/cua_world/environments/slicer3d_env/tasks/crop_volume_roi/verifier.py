@@ -256,7 +256,7 @@ def verify_crop_volume_roi(traj, env_info, task_info):
             # Sample trajectory frames
             try:
                 from gym_anything.vlm import sample_trajectory_frames
-                frames = sample_trajectory_frames(traj, n=4)
+                frames = sample_trajectory_frames(traj, num_samples=4)
             except ImportError:
                 frames = []
             

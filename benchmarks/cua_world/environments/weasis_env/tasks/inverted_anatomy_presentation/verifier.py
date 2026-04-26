@@ -65,7 +65,7 @@ def verify_inverted_anatomy_presentation(traj, env_info, task_info):
     try:
         from gym_anything.vlm import query_vlm, sample_trajectory_frames, get_final_screenshot
         
-        frames = sample_trajectory_frames(traj, n=3)
+        frames = sample_trajectory_frames(traj, num_samples=3)
         final_screenshot = get_final_screenshot(traj)
         
         prompt = """You are verifying an agent's completion of a medical imaging UI task in Weasis.

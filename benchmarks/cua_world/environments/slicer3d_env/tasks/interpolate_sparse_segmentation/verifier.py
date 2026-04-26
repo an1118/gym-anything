@@ -279,7 +279,7 @@ def verify_interpolate_sparse_segmentation(traj, env_info, task_info):
     try:
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         if frames and len(frames) >= 3:
             vlm_prompt = """Analyze these screenshots from a 3D Slicer medical imaging task.
 The task was to use "Fill between slices" to interpolate a sparse tumor segmentation.

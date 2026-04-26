@@ -353,7 +353,7 @@ def verify_define_oblique_plane(traj, env_info, task_info):
             # Import trajectory sampling utilities
             from gym_anything.vlm import sample_trajectory_frames
             
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             
             if frames and len(frames) > 0:
                 vlm_prompt = """Analyze these screenshots from a 3D Slicer session where the user should be creating an AC-PC plane.

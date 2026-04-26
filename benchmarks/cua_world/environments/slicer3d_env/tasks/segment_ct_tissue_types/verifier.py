@@ -349,7 +349,7 @@ def verify_segment_ct_tissue_types(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample trajectory frames - use multiple to verify process
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if frames:
             vlm_prompt = """You are analyzing screenshots from a medical imaging task in 3D Slicer.

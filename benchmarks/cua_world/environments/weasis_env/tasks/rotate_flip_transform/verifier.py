@@ -148,7 +148,7 @@ def verify_rotate_flip_transform(traj, env_info, task_info):
             try:
                 # Sample frames from trajectory
                 from gym_anything.vlm import sample_trajectory_frames
-                frames = sample_trajectory_frames(traj, n=5)
+                frames = sample_trajectory_frames(traj, num_samples=5)
                 
                 vlm_result = query_vlm(prompt=VLM_PROMPT, images=frames)
                 

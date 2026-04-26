@@ -70,7 +70,7 @@ def verify_filter_dicom_worklist(traj, env_info, task_info):
     # ================================================================
     if VLM_AVAILABLE and traj:
         # Sample frames from the timeline
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         final = get_final_screenshot(traj)
         
         prompt = """You are evaluating a medical imaging AI agent's performance in Weasis DICOM Viewer.

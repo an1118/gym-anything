@@ -75,7 +75,7 @@ def verify_inspect_with_lens(traj, env_info, task_info):
     vlm_passed = False
     try:
         # Sample trajectory to ensure we catch the transient Lens tool UI
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         final = get_final_screenshot(traj)
         
         # In case the agent properly exported the file, we could also copy it locally

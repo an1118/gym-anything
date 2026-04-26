@@ -84,7 +84,7 @@ def verify_troubleshoot_split_study(traj, env_info, task_info):
     # Optional Validation: Validate Trajectory Workflow via VLM if Available
     try:
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
-        frames = sample_trajectory_frames(traj, n=3)
+        frames = sample_trajectory_frames(traj, num_samples=3)
         if frames:
             prompt = """Analyze these trajectory frames from a desktop agent session.
 Does the agent actively inspect DICOM files by either:

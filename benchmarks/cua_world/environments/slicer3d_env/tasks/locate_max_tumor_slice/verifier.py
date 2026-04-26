@@ -297,7 +297,7 @@ def verify_locate_max_tumor_slice(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample trajectory frames to verify work was done
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if frames and len(frames) > 0:
             vlm_prompt = """You are analyzing screenshots from a medical imaging task in 3D Slicer.

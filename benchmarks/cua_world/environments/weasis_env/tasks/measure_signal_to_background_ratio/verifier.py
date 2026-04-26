@@ -117,7 +117,7 @@ def verify_measure_signal_to_background_ratio(traj, env_info, task_info):
     # CRITERION 5: VLM Visual Verification (25 pts)
     vlm_passed = False
     if has_vlm:
-        frames = sample_trajectory_frames(traj, n=3)
+        frames = sample_trajectory_frames(traj, num_samples=3)
         final = get_final_screenshot(traj)
         images = frames + [final] if final else frames
         

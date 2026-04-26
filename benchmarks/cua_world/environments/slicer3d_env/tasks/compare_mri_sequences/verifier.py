@@ -214,7 +214,7 @@ def verify_compare_mri_sequences(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample frames from trajectory
-            trajectory_frames = sample_trajectory_frames(traj, n=5)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
             final_screenshot = get_final_screenshot(traj)
             
             # Combine for comprehensive verification

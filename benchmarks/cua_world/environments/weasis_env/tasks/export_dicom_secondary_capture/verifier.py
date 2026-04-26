@@ -104,7 +104,7 @@ def verify_export_secondary_capture(traj, env_info, task_info) -> Dict[str, Any]
     # 4. VLM Trajectory Analysis (25 points)
     vlm_score = 0
     try:
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         if frames:
             vlm_response = query_vlm(images=frames, prompt=VLM_PROMPT)
             if vlm_response and vlm_response.get("success"):

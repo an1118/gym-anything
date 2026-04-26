@@ -259,7 +259,7 @@ def verify_create_annotation_arrow(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample trajectory frames for process verification
-            traj_frames = sample_trajectory_frames(traj, n=4) if traj else []
+            traj_frames = sample_trajectory_frames(traj, num_samples=4) if traj else []
             final_screenshot = get_final_screenshot(traj)
             
             if traj_frames or final_screenshot:

@@ -292,7 +292,7 @@ def verify_place_tumor_fiducials(traj, env_info, task_info):
         if query_vlm and traj:
             # Sample trajectory frames
             from gym_anything.vlm import sample_trajectory_frames
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             
             if frames:
                 vlm_prompt = """Analyze these screenshots from a 3D Slicer session where the user should be placing fiducial markers on a brain tumor.

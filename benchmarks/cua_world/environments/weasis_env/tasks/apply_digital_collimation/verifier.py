@@ -127,7 +127,7 @@ def verify_digital_collimation(traj, env_info, task_info):
     vlm_passed = False
     try:
         if 'sample_trajectory_frames' in globals() and 'query_vlm' in globals():
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             prompt = """Look at this sequence of screenshots of a user interacting with Weasis DICOM viewer. 
             Did the user select and apply a 'Shutter' or 'Collimator' tool (often rectangular)?
             Respond ONLY with a JSON object: {"shutter_used": true/false}"""

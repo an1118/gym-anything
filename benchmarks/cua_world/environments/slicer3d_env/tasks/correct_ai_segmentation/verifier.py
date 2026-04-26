@@ -233,7 +233,7 @@ def verify_correct_ai_segmentation(traj, env_info, task_info):
     if query_vlm and has_vlm_utils and traj:
         try:
             # Sample trajectory frames for process verification
-            frames = sample_trajectory_frames(traj, n=5)
+            frames = sample_trajectory_frames(traj, num_samples=5)
             final_frame = get_final_screenshot(traj)
             
             if frames or final_frame:

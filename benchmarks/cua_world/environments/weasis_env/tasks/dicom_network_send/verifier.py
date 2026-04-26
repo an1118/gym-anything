@@ -40,7 +40,7 @@ def verify_via_vlm(traj, env_info):
         
     try:
         from gym_anything.vlm import sample_trajectory_frames
-        frames = sample_trajectory_frames(traj, n=6)
+        frames = sample_trajectory_frames(traj, num_samples=6)
     except ImportError:
         logger.warning("Could not import trajectory sampler.")
         return 0, "Trajectory sampler unavailable"

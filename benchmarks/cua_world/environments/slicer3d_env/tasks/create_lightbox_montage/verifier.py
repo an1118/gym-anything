@@ -185,7 +185,7 @@ def verify_create_lightbox_montage(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
         
         # Get trajectory frames for process verification
-        traj_frames = sample_trajectory_frames(traj, n=4) if traj else []
+        traj_frames = sample_trajectory_frames(traj, num_samples=4) if traj else []
         final_screenshot = get_final_screenshot(traj) if traj else None
         
         # Also try to get the actual montage image for content verification

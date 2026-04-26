@@ -156,7 +156,7 @@ def verify_restore_default_display_state(traj, env_info, task_info):
     # 3. VLM Trajectory Verification (20 points)
     if VLM_AVAILABLE:
         try:
-            frames = sample_trajectory_frames(traj, n=6)
+            frames = sample_trajectory_frames(traj, num_samples=6)
             vlm_res = query_vlm(images=frames, prompt=VLM_PROMPT)
             if vlm_res and vlm_res.get("success"):
                 parsed = vlm_res.get("parsed", {})

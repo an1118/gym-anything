@@ -244,7 +244,7 @@ def verify_evans_index(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample frames from trajectory (shows progression of work)
-            trajectory_frames = sample_trajectory_frames(traj, n=4)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=4)
             final_frame = get_final_screenshot(traj)
             
             all_frames = []

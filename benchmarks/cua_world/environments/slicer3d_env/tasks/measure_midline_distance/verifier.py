@@ -317,7 +317,7 @@ def verify_midline_distance(traj, env_info, task_info):
             # Try to get trajectory frames
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
 
-            frames = sample_trajectory_frames(traj, n=3)
+            frames = sample_trajectory_frames(traj, num_samples=3)
             final = get_final_screenshot(traj)
 
             if frames or final:

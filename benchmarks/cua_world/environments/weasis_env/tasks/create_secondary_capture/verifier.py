@@ -101,7 +101,7 @@ def verify_create_secondary_capture(traj, env_info, task_info):
     # Criterion 4: VLM Verification of workflow (Trajectory check) (30 points)
     try:
         # Sample trajectory frames specifically looking for annotations and dialogs
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         final_frame = get_final_screenshot(traj)
         if final_frame:
             frames.append(final_frame)

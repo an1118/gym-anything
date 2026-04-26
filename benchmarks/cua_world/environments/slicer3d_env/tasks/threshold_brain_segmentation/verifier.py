@@ -217,7 +217,7 @@ def verify_threshold_brain_segmentation(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample frames from trajectory (not just final screenshot!)
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if frames and len(frames) > 0:
             # Query VLM with multiple trajectory frames

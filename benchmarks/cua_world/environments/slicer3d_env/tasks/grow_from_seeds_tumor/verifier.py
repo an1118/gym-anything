@@ -251,7 +251,7 @@ def verify_grow_from_seeds_tumor(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample frames from trajectory to verify workflow
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if frames:
             vlm_prompt = """Analyze these screenshots from a 3D Slicer medical imaging session.

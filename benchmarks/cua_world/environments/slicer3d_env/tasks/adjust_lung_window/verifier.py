@@ -227,7 +227,7 @@ def verify_adjust_lung_window(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample trajectory frames (not just final screenshot)
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         
         if frames:
             vlm_prompt = """Analyze these screenshots from a 3D Slicer medical imaging session.

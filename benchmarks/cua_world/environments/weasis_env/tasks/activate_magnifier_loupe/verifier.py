@@ -93,7 +93,7 @@ def verify_activate_magnifier(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
         # We sample a few frames plus the final frame, in case the agent captured the 
         # file but the final frame doesn't show it (e.g. they let go of the mouse).
-        frames = sample_trajectory_frames(traj, n=3)
+        frames = sample_trajectory_frames(traj, num_samples=3)
         final_frame = get_final_screenshot(traj)
         if frames:
             images_to_check.extend(frames)

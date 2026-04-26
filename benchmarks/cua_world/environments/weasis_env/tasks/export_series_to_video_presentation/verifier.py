@@ -105,7 +105,7 @@ def verify_video_export(traj, env_info, task_info):
     # CRITERION 5: VLM Trajectory check (15 points)
     try:
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         vlm_result = query_vlm(images=frames, prompt=VLM_PROMPT)
         
         if vlm_result and vlm_result.get("success"):

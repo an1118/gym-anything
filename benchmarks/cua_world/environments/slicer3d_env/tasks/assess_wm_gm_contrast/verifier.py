@@ -303,7 +303,7 @@ def verify_wm_gm_contrast(traj, env_info, task_info):
         from gym_anything.vlm import query_vlm, sample_trajectory_frames, get_final_screenshot
         
         # Sample trajectory frames
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         final = get_final_screenshot(traj)
         
         if frames or final:

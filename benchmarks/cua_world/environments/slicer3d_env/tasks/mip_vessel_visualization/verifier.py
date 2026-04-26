@@ -166,7 +166,7 @@ def verify_mip_vessel_visualization(traj, env_info, task_info):
     trajectory_frames = []
     try:
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
-        trajectory_frames = sample_trajectory_frames(traj, n=5)
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
         final_screenshot = get_final_screenshot(traj)
         if final_screenshot:
             trajectory_frames.append(final_screenshot)

@@ -263,7 +263,7 @@ def verify_analyze_line_intensity_profile(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample trajectory frames for process verification
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             final = get_final_screenshot(traj)
             
             if final:

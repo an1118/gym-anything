@@ -239,7 +239,7 @@ def verify_intensity_masked_segmentation(traj, env_info, task_info):
         # Import VLM utilities if available
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if frames and len(frames) > 0:
             vlm_prompt = """Analyze these screenshots from a 3D Slicer medical imaging session.

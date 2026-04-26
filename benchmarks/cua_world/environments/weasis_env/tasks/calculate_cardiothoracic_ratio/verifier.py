@@ -126,7 +126,7 @@ def verify_cardiothoracic_ratio(traj, env_info, task_info):
     if query_vlm and VLM_AVAILABLE:
         try:
             # Analyze workflow across multiple frames, not just the final one
-            frames = sample_trajectory_frames(traj, n=3)
+            frames = sample_trajectory_frames(traj, num_samples=3)
             final = get_final_screenshot(traj)
             images = frames + [final] if final else frames
             

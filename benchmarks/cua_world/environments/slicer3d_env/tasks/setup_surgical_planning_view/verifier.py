@@ -337,7 +337,7 @@ def verify_setup_surgical_planning_view(traj, env_info, task_info):
             # Get trajectory frames
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
-            frames = sample_trajectory_frames(traj, n=3) if hasattr(traj, '__iter__') else []
+            frames = sample_trajectory_frames(traj, num_samples=3) if hasattr(traj, '__iter__') else []
             final = get_final_screenshot(traj)
             
             all_frames = frames + ([final] if final else [])

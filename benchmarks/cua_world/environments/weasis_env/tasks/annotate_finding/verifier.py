@@ -16,7 +16,7 @@ except ImportError:
         if not traj: return None
         return traj[-1].get("observation", {}).get("image")
 
-    def sample_trajectory_frames(traj, n=5):
+    def sample_trajectory_frames(traj, num_samples=5):
         if not traj: return []
         step = max(1, len(traj) // n)
         return [t.get("observation", {}).get("image") for t in traj[::step]]
@@ -108,7 +108,7 @@ def verify_annotate_finding(traj, env_info, task_info):
     vlm_success = False
     if query_vlm and traj:
         try:
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             final_frame = get_final_screenshot(traj)
             if final_frame:
                 frames.append(final_frame)

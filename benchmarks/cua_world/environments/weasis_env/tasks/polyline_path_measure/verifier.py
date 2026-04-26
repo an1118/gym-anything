@@ -104,7 +104,7 @@ def verify_polyline_path_measure(traj, env_info, task_info):
     if query_vlm:
         try:
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
-            frames = sample_trajectory_frames(traj, n=4)
+            frames = sample_trajectory_frames(traj, num_samples=4)
             final = get_final_screenshot(traj)
             images = frames + [final] if final else frames
             

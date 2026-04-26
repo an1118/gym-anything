@@ -113,7 +113,7 @@ def verify_import_dicom_ct(traj, env_info, task_info):
         # Import VLM utilities if available
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         if frames:
             # Check if any trajectory frame shows DICOM browser
             vlm_result = query_vlm(

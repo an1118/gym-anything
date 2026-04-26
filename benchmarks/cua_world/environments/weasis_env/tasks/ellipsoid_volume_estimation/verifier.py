@@ -105,7 +105,7 @@ def verify_ellipsoid_volume(traj, env_info, task_info):
         query_vlm = env_info.get('query_vlm')
         
         if query_vlm and math_passed: # Only bother querying VLM if they did the math right
-            frames = sample_trajectory_frames(traj, n=3)
+            frames = sample_trajectory_frames(traj, num_samples=3)
             final = get_final_screenshot(traj)
             images = frames + [final] if final else frames
             

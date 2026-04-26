@@ -250,7 +250,7 @@ def verify_tumor_vessel_distance(traj, env_info, task_info):
             # Sample trajectory frames
             try:
                 from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
-                frames = sample_trajectory_frames(traj, n=4)
+                frames = sample_trajectory_frames(traj, num_samples=4)
                 final = get_final_screenshot(traj)
                 all_frames = frames + [final] if final else frames
             except ImportError:

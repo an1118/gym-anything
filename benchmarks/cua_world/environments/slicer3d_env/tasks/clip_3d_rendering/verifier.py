@@ -206,7 +206,7 @@ def verify_clip_3d_rendering(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample frames from trajectory (captures workflow progression)
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         
         if frames and len(frames) >= 2:
             vlm_prompt = """Analyze these screenshots from a 3D Slicer medical imaging session.

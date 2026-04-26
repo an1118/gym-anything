@@ -256,7 +256,7 @@ def verify_roi_box_volume_render(traj, env_info, task_info):
         from gym_anything.vlm import query_vlm, sample_trajectory_frames, get_final_screenshot
         
         # Sample trajectory frames for process verification
-        trajectory_frames = sample_trajectory_frames(traj, n=4) if traj else []
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=4) if traj else []
         final_frame = get_final_screenshot(traj) if traj else None
         
         if final_frame or trajectory_frames:

@@ -194,7 +194,7 @@ def _vlm_verify_trajectory(query_vlm, sample_trajectory_frames, traj) -> Dict[st
     
     try:
         # Sample frames from trajectory
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         
         if not frames or len(frames) < 2:
             result['reasoning'] = 'Insufficient trajectory frames'

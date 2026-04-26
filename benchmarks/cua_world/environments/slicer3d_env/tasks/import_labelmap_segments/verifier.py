@@ -212,7 +212,7 @@ def verify_import_labelmap_segments(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
         
         # Sample frames from trajectory for process verification
-        traj_frames = sample_trajectory_frames(traj, n=5) if traj else []
+        traj_frames = sample_trajectory_frames(traj, num_samples=5) if traj else []
         final_screenshot = get_final_screenshot(traj)
         
         if traj_frames or final_screenshot:

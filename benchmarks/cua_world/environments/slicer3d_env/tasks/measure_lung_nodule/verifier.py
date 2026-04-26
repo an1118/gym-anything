@@ -259,7 +259,7 @@ def verify_measure_lung_nodule(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
         
         # Sample frames from trajectory
-        frames = sample_trajectory_frames(traj, n=5) if traj else []
+        frames = sample_trajectory_frames(traj, num_samples=5) if traj else []
         final_frame = get_final_screenshot(traj) if traj else None
         
         if frames or final_frame:

@@ -104,7 +104,7 @@ def verify_mpr_thick_slab(traj, env_info, task_info):
             # Using standard vlm trajectory sample
             images = []
             if 'sample_trajectory_frames' in globals():
-                images = sample_trajectory_frames(traj, n=4)
+                images = sample_trajectory_frames(traj, num_samples=4)
                 images.append(get_final_screenshot(traj))
             else:
                 # Fallback to getting final state from trajectory directly if helpers aren't injected

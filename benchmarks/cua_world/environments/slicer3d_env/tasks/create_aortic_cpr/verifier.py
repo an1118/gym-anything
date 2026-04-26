@@ -239,7 +239,7 @@ def verify_aortic_cpr(traj, env_info, task_info):
             from vlm_utils import sample_trajectory_frames, query_vlm
         
         # Get trajectory frames - use TRAJECTORY not just final
-        frames = sample_trajectory_frames(traj, n=5) if traj else []
+        frames = sample_trajectory_frames(traj, num_samples=5) if traj else []
         
         if frames and len(frames) > 0:
             # Query VLM about the workflow progression

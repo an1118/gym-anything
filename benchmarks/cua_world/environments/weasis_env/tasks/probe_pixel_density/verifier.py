@@ -131,7 +131,7 @@ def verify_probe_pixel_density(traj, env_info, task_info):
             try:
                 # Import necessary functions safely within the scope
                 from gym_anything.vlm import sample_trajectory_frames
-                frames = sample_trajectory_frames(traj, n=5)
+                frames = sample_trajectory_frames(traj, num_samples=5)
                 
                 prompt = """Did the agent actively use Weasis DICOM Viewer to probe pixel values?
                 Look at the sequence of screenshots:

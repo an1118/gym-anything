@@ -248,7 +248,7 @@ def verify_apply_manual_transform(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
         
         # Get trajectory frames for process verification
-        frames = sample_trajectory_frames(traj, n=3)
+        frames = sample_trajectory_frames(traj, num_samples=3)
         final = get_final_screenshot(traj)
         
         if frames or final:

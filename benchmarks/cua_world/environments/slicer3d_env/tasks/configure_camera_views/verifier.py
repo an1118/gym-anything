@@ -381,7 +381,7 @@ def verify_configure_camera_views(traj, env_info, task_info):
         try:
             # Import trajectory helpers
             from gym_anything.vlm import sample_trajectory_frames
-            traj_frames = sample_trajectory_frames(traj, n=5)
+            traj_frames = sample_trajectory_frames(traj, num_samples=5)
             if traj_frames:
                 workflow_result = _vlm_query(query_vlm, TRAJECTORY_WORKFLOW_PROMPT, images=traj_frames)
                 if workflow_result:

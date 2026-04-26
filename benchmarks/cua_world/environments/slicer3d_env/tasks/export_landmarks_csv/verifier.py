@@ -311,7 +311,7 @@ def _verify_with_vlm(traj, env_info) -> Dict[str, Any]:
     
     # Sample frames from trajectory
     try:
-        frames = sample_trajectory_frames(traj, n=5)
+        frames = sample_trajectory_frames(traj, num_samples=5)
         if not frames:
             return None
     except Exception:

@@ -247,7 +247,7 @@ def verify_closed_curve_roi(traj, env_info, task_info):
             from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
             
             # Sample frames across the trajectory to verify work progression
-            trajectory_frames = sample_trajectory_frames(traj, n=4)
+            trajectory_frames = sample_trajectory_frames(traj, num_samples=4)
             final_screenshot = get_final_screenshot(traj)
             
             if final_screenshot:

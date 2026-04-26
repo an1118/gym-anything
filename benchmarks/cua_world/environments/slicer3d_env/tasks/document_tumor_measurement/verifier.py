@@ -243,7 +243,7 @@ def verify_document_tumor_measurement(traj, env_info, task_info):
             frames = []
             if has_vlm_utils:
                 try:
-                    frames = sample_trajectory_frames(traj, n=5)
+                    frames = sample_trajectory_frames(traj, num_samples=5)
                 except Exception as e:
                     logger.warning(f"Could not get trajectory frames: {e}")
             

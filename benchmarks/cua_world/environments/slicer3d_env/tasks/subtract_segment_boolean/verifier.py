@@ -271,7 +271,7 @@ def verify_subtract_segment_boolean(traj, env_info, task_info):
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
         
         # Sample frames from trajectory
-        frames = sample_trajectory_frames(traj, n=3)
+        frames = sample_trajectory_frames(traj, num_samples=3)
         
         if frames:
             vlm_prompt = """Analyze these screenshots from a 3D Slicer medical imaging session.

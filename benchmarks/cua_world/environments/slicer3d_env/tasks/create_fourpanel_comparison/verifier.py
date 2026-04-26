@@ -259,7 +259,7 @@ def verify_fourpanel_comparison(traj, env_info, task_info):
     # Get trajectory frames for workflow verification
     try:
         from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot
-        trajectory_frames = sample_trajectory_frames(traj, n=5)
+        trajectory_frames = sample_trajectory_frames(traj, num_samples=5)
         final_frame = get_final_screenshot(traj)
     except ImportError:
         logger.warning("Could not import VLM utilities")
