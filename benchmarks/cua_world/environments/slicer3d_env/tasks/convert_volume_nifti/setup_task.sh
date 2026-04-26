@@ -131,24 +131,7 @@ pkill -f "Slicer" 2>/dev/null || true
 sleep 2
 
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer > /tmp/slicer_launch.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-for i in {1..60}; do
-    if pgrep -f "Slicer" > /dev/null && DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected after ${i}s"
-        break
-    fi
-    sleep 1
-done
-
-# Additional wait for Slicer to fully initialize
-sleep 5
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 1
+wait_for_slicer 90
 
 # Take initial screenshot
 echo "Capturing initial screenshot..."

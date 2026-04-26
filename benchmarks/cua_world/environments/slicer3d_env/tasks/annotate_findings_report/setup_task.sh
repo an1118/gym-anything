@@ -64,27 +64,7 @@ xhost +local: 2>/dev/null || true
 
 # Launch Slicer with data file
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
-
-echo "Waiting for 3D Slicer to start and load data..."
-sleep 10
-
-# Wait for Slicer window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer\|3D Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait additional time for data to fully load
-sleep 5
-
-# Maximize and focus Slicer window
-echo "Maximizing and focusing Slicer window..."
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Navigate to sagittal view using keyboard shortcuts
 # In Slicer, we can use the layout selector or switch views

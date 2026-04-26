@@ -196,26 +196,7 @@ PYEOF
 echo "Launching 3D Slicer with BraTS data and AI segmentation..."
 export SAMPLE_ID BRATS_DIR
 su - ga -c "DISPLAY=:1 SAMPLE_ID='$SAMPLE_ID' BRATS_DIR='$BRATS_DIR' /opt/Slicer/Slicer --python-script /tmp/load_brats_task.py > /tmp/slicer_launch.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-sleep 15
-
-# Wait for window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Maximize Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-sleep 2
-
-# Focus the window
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
+wait_for_slicer 90
 
 # Take initial screenshot
 echo "Capturing initial state..."

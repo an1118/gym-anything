@@ -70,27 +70,7 @@ xhost +local: 2>/dev/null || true
 
 # Start Slicer with the volume file as argument
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$VOLUME_FILE' > /tmp/slicer_launch.log 2>&1 &"
-
-echo "Waiting for 3D Slicer to start and load data..."
-sleep 8
-
-# Wait for Slicer window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer\|3D Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait additional time for data to fully load
-echo "Waiting for volume to load..."
-sleep 10
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Take initial screenshot showing loaded data
 echo "Capturing initial state screenshot..."

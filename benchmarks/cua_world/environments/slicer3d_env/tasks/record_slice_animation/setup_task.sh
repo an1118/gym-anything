@@ -56,35 +56,7 @@ sleep 2
 # Launch 3D Slicer with the sample data pre-loaded
 echo "Launching 3D Slicer with MRHead data..."
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
-
-# Wait for Slicer to start and data to load
-echo "Waiting for 3D Slicer to start and load data..."
-sleep 10
-
-# Wait for Slicer window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer\|3D Slicer\|MRHead"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait additional time for data to fully load
-echo "Waiting for data to fully load..."
-sleep 10
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
-
-# Verify data loaded by checking window title
-WINDOW_TITLE=$(DISPLAY=:1 xdotool getactivewindow getwindowname 2>/dev/null || echo "unknown")
-echo "Active window title: $WINDOW_TITLE"
-
-if echo "$WINDOW_TITLE" | grep -qi "MRHead\|Slicer"; then
-    echo "Data appears to be loaded"
+wait_for_slicer 90
     DATA_LOADED="true"
 else
     echo "Warning: Cannot confirm data loaded from window title"

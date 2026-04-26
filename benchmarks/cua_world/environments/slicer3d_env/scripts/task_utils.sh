@@ -35,6 +35,8 @@ safe_xdotool() {
 # This helper is called by wait_for_slicer at every return point so the
 # Slicer window comes up full-size on a clean desktop.
 finalize_slicer_window() {
+    # 1) Dismiss the GNOME activities overview if it's up — wmctrl maximize is
+    #    a no-op while that shade covers the desktop.
     DISPLAY=:1 xdotool key Escape 2>/dev/null || true
     sleep 0.5
     local wid_max
@@ -42,6 +44,12 @@ finalize_slicer_window() {
     if [ -n "$wid_max" ]; then
         DISPLAY=:1 wmctrl -i -r "$wid_max" -b add,maximized_vert,maximized_horz 2>/dev/null || true
         sleep 0.5
+        # 2) Dismiss Slicer's "not for clinical use" first-launch dialog so the
+        #    agent doesn't waste steps clicking through it.
+        DISPLAY=:1 xdotool key --window "$wid_max" Return 2>/dev/null || true
+        sleep 0.3
+        DISPLAY=:1 xdotool key --window "$wid_max" Escape 2>/dev/null || true
+        sleep 0.3
     fi
 }
 

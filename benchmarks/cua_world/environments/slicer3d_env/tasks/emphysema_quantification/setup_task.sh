@@ -316,34 +316,7 @@ PYEOF
 echo "Launching 3D Slicer with chest CT..."
 export CT_FILE
 sudo -u ga DISPLAY=:1 CT_FILE="$CT_FILE" /opt/Slicer/Slicer --python-script /tmp/load_chest_ct.py > /tmp/slicer_launch.log 2>&1 &
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to load..."
-sleep 10
-
-# Wait for window
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait additional time for data to load
-sleep 10
-
-# Maximize and focus window
-SLICER_WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-if [ -n "$SLICER_WID" ]; then
-    echo "Found Slicer window: $SLICER_WID"
-    DISPLAY=:1 wmctrl -i -r "$SLICER_WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$SLICER_WID" 2>/dev/null || true
-    sleep 1
-fi
-
-# Dismiss any dialogs
-sleep 2
+wait_for_slicer 90
 DISPLAY=:1 xdotool key Escape 2>/dev/null || true
 sleep 0.5
 DISPLAY=:1 xdotool key Escape 2>/dev/null || true

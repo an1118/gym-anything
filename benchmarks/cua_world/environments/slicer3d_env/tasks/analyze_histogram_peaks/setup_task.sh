@@ -60,40 +60,7 @@ xhost +local: 2>/dev/null || true
 
 # Launch as ga user
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer > /tmp/slicer_launch.log 2>&1 &
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-WAIT_COUNT=0
-MAX_WAIT=90
-while [ $WAIT_COUNT -lt $MAX_WAIT ]; do
-    if pgrep -f "Slicer" > /dev/null 2>&1; then
-        # Check for window
-        if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-            echo "3D Slicer window detected"
-            break
-        fi
-    fi
-    sleep 2
-    WAIT_COUNT=$((WAIT_COUNT + 2))
-done
-
-if [ $WAIT_COUNT -ge $MAX_WAIT ]; then
-    echo "WARNING: Timeout waiting for Slicer window"
-fi
-
-# Additional wait for Slicer to fully load
-sleep 10
-
-# Maximize and focus Slicer window
-SLICER_WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-if [ -n "$SLICER_WID" ]; then
-    DISPLAY=:1 wmctrl -i -r "$SLICER_WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$SLICER_WID" 2>/dev/null || true
-    echo "Slicer window maximized and focused"
-fi
-
-# Take initial screenshot
-sleep 2
+wait_for_slicer 90
 DISPLAY=:1 scrot /tmp/task_initial_state.png 2>/dev/null || true
 
 # Save initial state JSON

@@ -97,27 +97,7 @@ export DISPLAY=:1
 xhost +local: 2>/dev/null || true
 
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer > /tmp/slicer_launch.log 2>&1 &"
-
-echo "Waiting for 3D Slicer to start..."
-sleep 10
-
-# Wait for Slicer window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait additional time for Slicer to fully load modules
-echo "Waiting for Slicer to fully initialize..."
-sleep 15
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Take initial screenshot
 echo "Capturing initial state screenshot..."

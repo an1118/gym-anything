@@ -91,28 +91,7 @@ sleep 2
 # Launch 3D Slicer with the chest CT data
 echo "Launching 3D Slicer with CTChest data..."
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-sleep 8
-
-# Wait for Slicer window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer\|3D Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 1
-done
-
-# Wait additional time for data to load
-echo "Waiting for CT data to load..."
-sleep 10
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Take initial screenshot to verify setup
 echo "Capturing initial state screenshot..."

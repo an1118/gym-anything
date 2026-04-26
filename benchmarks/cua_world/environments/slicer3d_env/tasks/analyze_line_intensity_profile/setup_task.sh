@@ -74,36 +74,7 @@ xhost +local: 2>/dev/null || true
 
 # Start Slicer with the sample file
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
-
-echo "Waiting for 3D Slicer to start and load data..."
-
-# Wait for Slicer window to appear
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer\|3D Slicer"; then
-        echo "3D Slicer window detected (attempt $i)"
-        break
-    fi
-    sleep 2
-done
-
-# Wait additional time for data to fully load
-sleep 10
-
-# Check if data is loaded
-echo "Verifying data load..."
-for i in {1..20}; do
-    WINDOW_TITLE=$(DISPLAY=:1 xdotool getactivewindow getwindowname 2>/dev/null || echo "")
-    if echo "$WINDOW_TITLE" | grep -qi "MRHead\|Slicer"; then
-        echo "Window title: $WINDOW_TITLE"
-        break
-    fi
-    sleep 1
-done
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Take initial screenshot
 echo "Capturing initial state screenshot..."

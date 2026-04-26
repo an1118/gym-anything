@@ -60,35 +60,7 @@ xhost +local: 2>/dev/null || true
 
 # Start Slicer as ga user with the data file
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
-
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-for i in {1..60}; do
-    if pgrep -f "Slicer" > /dev/null 2>&1; then
-        # Check for window
-        if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer\|3D Slicer"; then
-            echo "3D Slicer window detected"
-            break
-        fi
-    fi
-    sleep 2
-done
-
-# Wait additional time for data to load
-echo "Waiting for data to load..."
-sleep 10
-
-# Maximize and focus Slicer window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
-
-# Verify data loaded by checking window title or via Python
-WINDOW_TITLE=$(DISPLAY=:1 xdotool getactivewindow getwindowname 2>/dev/null || echo "")
-echo "Active window: $WINDOW_TITLE"
-
-if echo "$WINDOW_TITLE" | grep -qi "MRHead\|Slicer"; then
-    echo "Slicer appears ready with data"
+wait_for_slicer 90
 else
     echo "WARNING: Could not confirm data loaded"
 fi

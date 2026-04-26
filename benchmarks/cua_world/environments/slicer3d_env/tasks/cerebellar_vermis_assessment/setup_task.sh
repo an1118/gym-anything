@@ -256,29 +256,7 @@ PYEOF
 # Launch Slicer with the Python script
 echo "Launching 3D Slicer with FLAIR MRI..."
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/load_flair_volume.py > /tmp/slicer_launch.log 2>&1 &
-
-# Wait for Slicer to fully load
-echo "Waiting for 3D Slicer to load..."
-sleep 10
-
-for i in {1..60}; do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Additional wait for data loading
-sleep 15
-
-# Maximize and focus Slicer
-SLICER_WID=$(DISPLAY=:1 wmctrl -l | grep -i "slicer" | head -1 | awk '{print $1}')
-if [ -n "$SLICER_WID" ]; then
-    echo "Found Slicer window: $SLICER_WID"
-    DISPLAY=:1 wmctrl -i -r "$SLICER_WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$SLICER_WID" 2>/dev/null || true
-    sleep 1
+wait_for_slicer 90
     
     # Dismiss any startup dialogs
     DISPLAY=:1 xdotool key Escape 2>/dev/null || true
