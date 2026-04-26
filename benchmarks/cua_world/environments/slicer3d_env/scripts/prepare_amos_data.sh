@@ -37,7 +37,9 @@ fi
 # Ensure Python dependencies
 # ============================================================
 echo "Ensuring Python dependencies..."
-pip install -q numpy nibabel 2>/dev/null || pip3 install -q numpy nibabel 2>/dev/null || true
+pip3 install --break-system-packages -q numpy nibabel 2>/dev/null \
+    || pip install --break-system-packages -q numpy nibabel 2>/dev/null \
+    || true
 
 # ============================================================
 # Try to download real AMOS data (with short timeout)
@@ -99,7 +101,8 @@ try:
     import nibabel as nib
 except ImportError:
     import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "nibabel"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install",
+                           "--break-system-packages", "-q", "nibabel"])
     import nibabel as nib
 
 case_id = os.environ.get("CASE_ID", "amos_0001")

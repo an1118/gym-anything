@@ -28,6 +28,23 @@ safe_xdotool() {
     sudo -u $user DISPLAY=$display xdotool "$@" 2>/dev/null || true
 }
 
+# Dismiss the GNOME activities overview and maximize the Slicer window.
+# In VNC-mode GNOME the desktop sometimes boots into Activities state with
+# the dock + search visible and Slicer's window hidden behind the overview
+# shade; subsequent `wmctrl maximize` calls then no-op against the shade.
+# This helper is called by wait_for_slicer at every return point so the
+# Slicer window comes up full-size on a clean desktop.
+finalize_slicer_window() {
+    DISPLAY=:1 xdotool key Escape 2>/dev/null || true
+    sleep 0.5
+    local wid_max
+    wid_max=$(get_slicer_window_id)
+    if [ -n "$wid_max" ]; then
+        DISPLAY=:1 wmctrl -i -r "$wid_max" -b add,maximized_vert,maximized_horz 2>/dev/null || true
+        sleep 0.5
+    fi
+}
+
 # Take a screenshot
 take_screenshot() {
     local path="${1:-/tmp/screenshot.png}"
@@ -74,6 +91,7 @@ wait_for_slicer() {
         if echo "$title" | grep -qi "Welcome\|Slicer [0-9]"; then
             echo "3D Slicer fully loaded (title: $title)"
             sleep 2  # Small buffer after load
+            finalize_slicer_window
             return 0
         fi
 
@@ -87,6 +105,7 @@ wait_for_slicer() {
                 if [ $load_wait -gt 15 ]; then
                     echo "3D Slicer appears loaded (large window detected after ${load_wait}s)"
                     sleep 2
+                    finalize_slicer_window
                     return 0
                 fi
             fi
@@ -98,6 +117,7 @@ wait_for_slicer() {
 
     # If we get here, just proceed - Slicer should be functional even if not fully initialized
     echo "3D Slicer load wait complete (waited ${load_wait}s)"
+    finalize_slicer_window
     return 0
 }
 

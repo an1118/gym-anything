@@ -149,9 +149,14 @@ else
     touch /tmp/slicer_download_incomplete
 fi
 
-# Install Python dependencies (needed for verification and BraTS data generation)
+# Install Python dependencies (needed for verification and prepare_*_data.sh scripts)
+# Ubuntu 24.04 ships PEP-668 EXTERNALLY-MANAGED; --break-system-packages bypasses
+# it (safe in throwaway containers). Run synchronously and surface failures —
+# silent failures here cause every task setup_task.sh to crash with
+# ModuleNotFoundError.
 echo "Installing Python dependencies..."
-pip3 install -q pillow numpy nibabel scipy 2>/dev/null &
+pip3 install --break-system-packages -q pillow numpy nibabel scipy pydicom \
+    || echo "WARNING: pip install failed — prepare_*_data.sh fallbacks will retry"
 
 ELAPSED=$(($(date +%s) - START_TIME))
 echo "=== 3D Slicer installation complete in ${ELAPSED}s ==="

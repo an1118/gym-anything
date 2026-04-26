@@ -40,7 +40,9 @@ fi
 # Ensure Python dependencies
 # ============================================================
 echo "Ensuring Python dependencies..."
-pip install -q numpy nibabel scipy 2>/dev/null || pip3 install -q numpy nibabel scipy 2>/dev/null || true
+pip3 install --break-system-packages -q numpy nibabel scipy 2>/dev/null \
+    || pip install --break-system-packages -q numpy nibabel scipy 2>/dev/null \
+    || true
 
 # ============================================================
 # Try to download real IRCADb data (with timeout)
@@ -311,14 +313,16 @@ try:
     import nibabel as nib
 except ImportError:
     import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "nibabel"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install",
+                           "--break-system-packages", "-q", "nibabel"])
     import nibabel as nib
 
 try:
     from scipy.ndimage import distance_transform_edt, label as scipy_label
 except ImportError:
     import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "scipy"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install",
+                           "--break-system-packages", "-q", "scipy"])
     from scipy.ndimage import distance_transform_edt, label as scipy_label
 
 patient_num = os.environ.get("PATIENT_NUM", "5")
