@@ -28,9 +28,12 @@ TARGET_DIR="$IRCADB_DIR/patient_${PATIENT_NUM}"
 echo "Using patient: $PATIENT_NUM"
 echo "Data directory: $TARGET_DIR"
 
-# Find CT volume (could be DICOM dir or NIfTI)
+# Find CT volume — prepare_ircadb_data.sh writes patient_{N}_ct.nii.gz when
+# the upstream IRCAD download fails and we fall back to synthetic data.
 CT_FILE=""
-if [ -f "$TARGET_DIR/ct_volume.nii.gz" ]; then
+if [ -f "$TARGET_DIR/patient_${PATIENT_NUM}_ct.nii.gz" ]; then
+    CT_FILE="$TARGET_DIR/patient_${PATIENT_NUM}_ct.nii.gz"
+elif [ -f "$TARGET_DIR/ct_volume.nii.gz" ]; then
     CT_FILE="$TARGET_DIR/ct_volume.nii.gz"
 elif [ -d "$TARGET_DIR/PATIENT_DICOM" ] && [ "$(ls -1 "$TARGET_DIR/PATIENT_DICOM" 2>/dev/null | wc -l)" -gt 0 ]; then
     CT_FILE="$TARGET_DIR/PATIENT_DICOM"

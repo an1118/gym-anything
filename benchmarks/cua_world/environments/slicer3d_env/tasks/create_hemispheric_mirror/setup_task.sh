@@ -135,13 +135,6 @@ sleep 2
 echo "Launching 3D Slicer with MRHead..."
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
 wait_for_slicer 90
-    TITLE=$(DISPLAY=:1 xdotool getactivewindow getwindowname 2>/dev/null || echo "")
-    if echo "$TITLE" | grep -qi "MRHead\|Welcome"; then
-        echo "Data appears loaded (window: $TITLE)"
-        break
-    fi
-    sleep 2
-done
 
 # Take initial screenshot
 echo "Capturing initial state screenshot..."

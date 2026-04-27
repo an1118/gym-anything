@@ -57,11 +57,7 @@ sleep 2
 echo "Launching 3D Slicer with MRHead data..."
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
 wait_for_slicer 90
-    DATA_LOADED="true"
-else
-    echo "Warning: Cannot confirm data loaded from window title"
-    DATA_LOADED="uncertain"
-fi
+DATA_LOADED="true"
 
 # Save initial state info
 cat > /tmp/initial_state.json << EOF

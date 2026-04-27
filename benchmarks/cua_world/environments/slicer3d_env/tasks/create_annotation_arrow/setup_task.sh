@@ -61,9 +61,6 @@ xhost +local: 2>/dev/null || true
 # Start Slicer as ga user with the data file
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
 wait_for_slicer 90
-else
-    echo "WARNING: Could not confirm data loaded"
-fi
 
 # Take initial screenshot for evidence
 sleep 2

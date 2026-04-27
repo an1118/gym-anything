@@ -62,11 +62,6 @@ xhost +local: 2>/dev/null || true
 # Launch Slicer with the MRHead file
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$SAMPLE_FILE' > /tmp/slicer_launch.log 2>&1 &"
 wait_for_slicer 90
-    SLICER_PID=$(pgrep -f "Slicer" | head -1)
-    echo "Slicer PID: $SLICER_PID"
-else
-    echo "WARNING: Slicer may not have started properly"
-fi
 
 # Record volume information for ground truth verification
 python3 << 'PYEOF'

@@ -257,13 +257,6 @@ PYEOF
 echo "Launching 3D Slicer with FLAIR MRI..."
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/load_flair_volume.py > /tmp/slicer_launch.log 2>&1 &
 wait_for_slicer 90
-    
-    # Dismiss any startup dialogs
-    DISPLAY=:1 xdotool key Escape 2>/dev/null || true
-    sleep 0.5
-    DISPLAY=:1 xdotool key Return 2>/dev/null || true
-    sleep 1
-fi
 
 # Take initial screenshot
 sleep 2

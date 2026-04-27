@@ -316,13 +316,6 @@ sleep 3
 echo "Launching 3D Slicer with chest CT..."
 sudo -u ga DISPLAY=:1 CT_FILE="$CT_FILE" /opt/Slicer/Slicer --python-script /tmp/load_chest_ct.py > /tmp/slicer_launch.log 2>&1 &
 wait_for_slicer 90
-    
-    # Dismiss any dialogs
-    DISPLAY=:1 xdotool key Escape 2>/dev/null || true
-    sleep 0.5
-    DISPLAY=:1 xdotool key Escape 2>/dev/null || true
-    sleep 1
-fi
 
 # Take initial screenshot
 sleep 3
