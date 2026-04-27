@@ -150,31 +150,9 @@ echo "Launching 3D Slicer with abdominal CT..."
 CT_FILE="$AMOS_DIR/${CASE_ID}.nii.gz"
 
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$CT_FILE' > /tmp/slicer_launch.log 2>&1 &"
+wait_for_slicer 90
 
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-sleep 10
-
-for i in {1..60}; do
-    if pgrep -f "Slicer" > /dev/null 2>&1; then
-        SLICER_WINDOW=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "Slicer\|3D Slicer" | head -1)
-        if [ -n "$SLICER_WINDOW" ]; then
-            echo "3D Slicer window detected"
-            break
-        fi
-    fi
-    sleep 2
-done
-
-# Maximize and focus Slicer window
-echo "Maximizing Slicer window..."
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-sleep 1
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 1
-
-# Wait for data to load
-echo "Waiting for CT data to load..."
+# CT volume needs extra time to render across all slice views after load.
 sleep 10
 
 # Take initial screenshot

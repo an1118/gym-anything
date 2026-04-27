@@ -370,30 +370,11 @@ export DISPLAY=:1
 xhost +local: 2>/dev/null || true
 
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script "$SETUP_PYTHON" > /tmp/slicer_setup.log 2>&1 &
+wait_for_slicer 90
 
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-TIMEOUT=90
-ELAPSED=0
-while [ $ELAPSED -lt $TIMEOUT ]; do
-    if pgrep -f "Slicer" > /dev/null 2>&1; then
-        WINDOW=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "Slicer" | head -1)
-        if [ -n "$WINDOW" ]; then
-            echo "3D Slicer window detected"
-            break
-        fi
-    fi
-    sleep 2
-    ELAPSED=$((ELAPSED + 2))
-done
-
-# Wait extra time for data to load and module to switch
-echo "Waiting for data to load..."
+# Setup script loads volumes + creates segments + switches modules — give it
+# extra time after the window is up.
 sleep 15
-
-# Maximize window
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
 
 # Take initial screenshot
 DISPLAY=:1 scrot /tmp/task_initial_state.png 2>/dev/null || true

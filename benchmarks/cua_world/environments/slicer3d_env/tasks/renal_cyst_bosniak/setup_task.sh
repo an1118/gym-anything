@@ -290,37 +290,7 @@ else
     sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer > /tmp/slicer_launch.log 2>&1 &
 fi
 
-# Wait for Slicer to start
-echo "Waiting for 3D Slicer to start..."
-for i in {1..60}; do
-    if pgrep -f Slicer > /dev/null && DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi slicer; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait for full load
-sleep 10
-
-# Maximize and focus window
-echo "Configuring Slicer window..."
-WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "Slicer" | head -1 | awk '{print $1}')
-if [ -n "$WID" ]; then
-    echo "Found Slicer window: $WID"
-    DISPLAY=:1 wmctrl -i -r "$WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$WID" 2>/dev/null || true
-    sleep 1
-    
-    # Dismiss any dialogs
-    DISPLAY=:1 xdotool key Escape 2>/dev/null || true
-    sleep 0.5
-    DISPLAY=:1 xdotool key Return 2>/dev/null || true
-    sleep 1
-    
-    # Re-focus
-    DISPLAY=:1 wmctrl -i -a "$WID" 2>/dev/null || true
-fi
+wait_for_slicer 90
 
 # Take initial screenshot
 sleep 3

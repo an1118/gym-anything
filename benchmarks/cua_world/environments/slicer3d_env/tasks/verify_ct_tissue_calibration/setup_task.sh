@@ -66,26 +66,7 @@ xhost +local: 2>/dev/null || true
 
 # Start Slicer with the CT file
 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer '$CT_FILE' > /tmp/slicer_launch.log 2>&1" &
-
-echo "Waiting for 3D Slicer to start and load data..."
-sleep 10
-
-# Wait for Slicer window
-for i in $(seq 1 60); do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "Slicer"; then
-        echo "3D Slicer window detected"
-        break
-    fi
-    sleep 2
-done
-
-# Wait for data to load
-sleep 5
-
-# Maximize and focus Slicer
-DISPLAY=:1 wmctrl -r "Slicer" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-DISPLAY=:1 wmctrl -a "Slicer" 2>/dev/null || true
-sleep 2
+wait_for_slicer 90
 
 # Set appropriate window/level for soft tissue CT viewing
 # Create a Python script to configure the view

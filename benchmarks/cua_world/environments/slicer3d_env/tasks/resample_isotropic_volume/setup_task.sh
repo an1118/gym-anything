@@ -111,49 +111,7 @@ export DISPLAY=:1
 xhost +local: 2>/dev/null || true
 
 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer "$CT_FILE" > /tmp/slicer_launch.log 2>&1 &
-SLICER_PID=$!
-
-echo "Slicer launched with PID: $SLICER_PID"
-
-# ============================================================
-# Wait for Slicer to fully load
-# ============================================================
-echo "Waiting for 3D Slicer to start..."
-
-# Wait for window to appear
-for i in $(seq 1 60); do
-    if DISPLAY=:1 wmctrl -l 2>/dev/null | grep -qi "slicer\|3D Slicer"; then
-        echo "3D Slicer window detected after ${i}s"
-        break
-    fi
-    sleep 2
-done
-
-# Additional wait for data to load
-echo "Waiting for volume to load..."
-sleep 10
-
-# Wait for Slicer to finish loading (window title should contain volume name or "Welcome")
-for i in $(seq 1 30); do
-    TITLE=$(DISPLAY=:1 xdotool getactivewindow getwindowname 2>/dev/null || echo "")
-    if echo "$TITLE" | grep -qiE "Slicer.*[0-9]|amos|Welcome|Volumes"; then
-        echo "Slicer appears fully loaded (title: $TITLE)"
-        break
-    fi
-    sleep 2
-done
-
-# ============================================================
-# Maximize and focus Slicer window
-# ============================================================
-SLICER_WID=$(DISPLAY=:1 wmctrl -l 2>/dev/null | grep -i "slicer" | head -1 | awk '{print $1}')
-if [ -n "$SLICER_WID" ]; then
-    DISPLAY=:1 wmctrl -i -r "$SLICER_WID" -b add,maximized_vert,maximized_horz 2>/dev/null || true
-    DISPLAY=:1 wmctrl -i -a "$SLICER_WID" 2>/dev/null || true
-    echo "Slicer window maximized and focused"
-else
-    echo "WARNING: Could not find Slicer window to maximize"
-fi
+wait_for_slicer 90
 
 sleep 3
 
