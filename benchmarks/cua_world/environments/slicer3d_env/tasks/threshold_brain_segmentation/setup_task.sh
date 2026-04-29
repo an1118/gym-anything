@@ -31,7 +31,7 @@ if [ ! -f "$SAMPLE_DATA" ]; then
     
     # Source 1: Slicer testing data
     if curl -L -o "$SAMPLE_DATA" --connect-timeout 30 --max-time 120 \
-        "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286c4b0c71defe6e4f5f8" 2>/dev/null; then
+        "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286affadf823a7e58df93" 2>/dev/null; then
         if [ -f "$SAMPLE_DATA" ] && [ $(stat -c%s "$SAMPLE_DATA" 2>/dev/null || echo 0) -gt 1000000 ]; then
             DOWNLOAD_SUCCESS=true
             echo "Downloaded MRHead from Slicer testing data"

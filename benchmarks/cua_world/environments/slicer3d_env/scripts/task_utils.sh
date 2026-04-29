@@ -50,6 +50,16 @@ finalize_slicer_window() {
         sleep 0.3
         DISPLAY=:1 xdotool key --window "$wid_max" Escape 2>/dev/null || true
         sleep 0.3
+        # 3) Retry loop — GNOME-shell can re-engage the activities overview
+        #    after our first dismiss (idle behaviour, slow python-script
+        #    loads, secondary background launches). Spam Escape + maximize
+        #    over ~2s so any late re-engagement gets caught before the
+        #    bridge captures the agent's first observation.
+        for _ in 1 2 3 4 5; do
+            DISPLAY=:1 xdotool key Escape 2>/dev/null || true
+            DISPLAY=:1 wmctrl -i -r "$wid_max" -b add,maximized_vert,maximized_horz 2>/dev/null || true
+            sleep 0.4
+        done
     fi
 }
 

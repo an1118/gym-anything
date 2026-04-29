@@ -16,7 +16,7 @@ mkdir -p "$SAMPLE_DIR"
 
 if [ ! -f "$SAMPLE_FILE" ]; then
     echo "Downloading MRHead sample data..."
-    wget -q -O "$SAMPLE_FILE" "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286c4b0c71defe6e4f5f8" 2>/dev/null || \
+    wget -q -O "$SAMPLE_FILE" "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286affadf823a7e58df93" 2>/dev/null || \
     curl -L -o "$SAMPLE_FILE" "https://data.kitware.com/api/v1/file/5c4d2eac8d777f072bf6cdba/download" 2>/dev/null || \
         echo "Warning: Could not download sample data"
     chown ga:ga "$SAMPLE_FILE" 2>/dev/null || true

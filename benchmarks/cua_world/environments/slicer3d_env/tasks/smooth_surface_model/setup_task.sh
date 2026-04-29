@@ -55,7 +55,8 @@ for pkg in ['nibabel', 'vtk']:
         __import__(pkg)
     except ImportError:
         import subprocess
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", pkg])
+        subprocess.check_call([sys.executable, "-m", "pip", "install",
+                               "--break-system-packages", "-q", pkg])
 
 import nibabel as nib
 import vtk

@@ -1,0 +1,4 @@
+# Cached real medical-imaging data (populated at runtime).
+# Only the .gitignore file itself is tracked.
+*
+!.gitignore

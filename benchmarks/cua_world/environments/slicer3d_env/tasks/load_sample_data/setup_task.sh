@@ -11,7 +11,7 @@ if [ ! -f "$SAMPLE_FILE" ]; then
     echo "Warning: Sample file not found at $SAMPLE_FILE"
     echo "Attempting to download..."
     mkdir -p "$SAMPLE_DIR"
-    wget -q -O "$SAMPLE_FILE" "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286c4b0c71defe6e4f5f8" 2>/dev/null || \
+    wget -q -O "$SAMPLE_FILE" "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286affadf823a7e58df93" 2>/dev/null || \
         echo "Could not download sample data"
     chown ga:ga "$SAMPLE_FILE" 2>/dev/null || true
 fi

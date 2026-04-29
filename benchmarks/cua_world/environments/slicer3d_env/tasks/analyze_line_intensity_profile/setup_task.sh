@@ -43,7 +43,7 @@ if [ ! -f "$SAMPLE_FILE" ]; then
     
     # Try primary URL
     curl -L -o "$SAMPLE_FILE" --connect-timeout 30 --max-time 120 \
-        "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286c4b0c71defe6e4f5f8" 2>/dev/null
+        "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286affadf823a7e58df93" 2>/dev/null
     
     if [ ! -f "$SAMPLE_FILE" ] || [ $(stat -c%s "$SAMPLE_FILE" 2>/dev/null || echo 0) -lt 1000000 ]; then
         echo "Primary download failed, trying alternative..."

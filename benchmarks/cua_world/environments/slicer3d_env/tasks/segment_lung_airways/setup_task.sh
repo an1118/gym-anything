@@ -29,20 +29,18 @@ if [ -f /tmp/lidc_patient_id ]; then
     PATIENT_ID=$(cat /tmp/lidc_patient_id)
 fi
 
-DICOM_DIR="$LIDC_DIR/$PATIENT_ID/DICOM"
+# prepare_lidc_data.sh writes the chest CT as a single NIfTI
+# at LIDC/<PATIENT_ID>/<PATIENT_ID>_img.nii.gz (was a DICOM dir before
+# the TCIA API broke; we now fetch from a HuggingFace mirror).
+IMG_FILE="$LIDC_DIR/$PATIENT_ID/${PATIENT_ID}_img.nii.gz"
 echo "Patient ID: $PATIENT_ID"
-echo "DICOM directory: $DICOM_DIR"
+echo "Chest CT (NIfTI): $IMG_FILE"
 
-# Verify DICOM data exists
-DICOM_COUNT=0
-if [ -d "$DICOM_DIR" ]; then
-    DICOM_COUNT=$(find "$DICOM_DIR" -type f 2>/dev/null | wc -l)
+if [ ! -s "$IMG_FILE" ]; then
+    echo "ERROR: chest CT not found at $IMG_FILE"
+    exit 1
 fi
-echo "Found $DICOM_COUNT DICOM files"
-
-if [ "$DICOM_COUNT" -lt 50 ]; then
-    echo "WARNING: Expected more DICOM files, data may be incomplete"
-fi
+echo "CT file size: $(du -h "$IMG_FILE" | cut -f1)"
 
 # ============================================================
 # Record initial state for verification
@@ -61,8 +59,7 @@ rm -f "$EXPORT_DIR/airways*.nrrd" 2>/dev/null || true
 cat > /tmp/task_setup_info.json << EOF
 {
     "patient_id": "$PATIENT_ID",
-    "dicom_dir": "$DICOM_DIR",
-    "dicom_file_count": $DICOM_COUNT,
+    "ct_file": "$IMG_FILE",
     "export_dir": "$EXPORT_DIR",
     "expected_output": "$EXPORT_DIR/airways_segmentation.seg.nrrd",
     "setup_timestamp": $(date +%s)
@@ -80,85 +77,40 @@ sleep 2
 export DISPLAY=:1
 xhost +local: 2>/dev/null || true
 
-# Launch Slicer
-echo "Launching 3D Slicer..."
-sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer > /tmp/slicer_launch.log 2>&1 &
-wait_for_slicer 90
-
-# Create Python script to load DICOM
-cat > /tmp/load_lidc_dicom.py << 'PYEOF'
+# Launch Slicer with the chest-CT NIfTI pre-loaded via --python-script.
+# Replaces the previous "launch empty + DICOM browser import" path which
+# depended on the broken TCIA download.
+cat > /tmp/load_lidc_ct.py << 'PYEOF'
 import slicer
 import os
-import sys
 
-dicom_dir = os.environ.get("DICOM_DIR", "/home/ga/Documents/SlicerData/LIDC/LIDC-IDRI-0001/DICOM")
-print(f"Loading DICOM from: {dicom_dir}")
+img_file = os.environ.get("IMG_FILE")
+print(f"Loading chest CT from NIfTI: {img_file}")
 
-try:
-    from DICOMLib import DICOMUtils
-    
-    # Import DICOM files to database
-    DICOMUtils.importDicom(dicom_dir)
-    print("DICOM import complete")
-    
-    # Load the series
-    patientUIDs = slicer.dicomDatabase.patients()
-    loaded = False
-    
-    for patientUID in patientUIDs:
-        studies = slicer.dicomDatabase.studiesForPatient(patientUID)
-        for study in studies:
-            series_list = slicer.dicomDatabase.seriesForStudy(study)
-            for series in series_list:
-                files = slicer.dicomDatabase.filesForSeries(series)
-                if len(files) > 50:  # Main CT series
-                    print(f"Loading series with {len(files)} files...")
-                    loadedNodes = DICOMUtils.loadSeriesByUID([series])
-                    if loadedNodes:
-                        for node in loadedNodes:
-                            if node.IsA("vtkMRMLScalarVolumeNode"):
-                                # Set lung window/level
-                                displayNode = node.GetDisplayNode()
-                                if displayNode:
-                                    displayNode.SetAutoWindowLevel(False)
-                                    displayNode.SetWindow(1500)
-                                    displayNode.SetLevel(-500)
-                                print(f"Loaded volume: {node.GetName()}")
-                                loaded = True
-                        break
-            if loaded:
-                break
-        if loaded:
-            break
-    
-    if loaded:
-        print("SUCCESS: CT volume loaded")
-    else:
-        print("WARNING: No volume loaded")
-
-except Exception as e:
-    print(f"ERROR loading DICOM: {e}")
-    import traceback
-    traceback.print_exc()
-
-print("Load script complete")
+volume_node = slicer.util.loadVolume(img_file)
+if volume_node is None:
+    print(f"ERROR: slicer.util.loadVolume returned None for {img_file}")
+else:
+    # Lung window/level for airway visibility.
+    displayNode = volume_node.GetDisplayNode()
+    if displayNode:
+        displayNode.SetAutoWindowLevel(False)
+        displayNode.SetWindow(1500)
+        displayNode.SetLevel(-500)
+    # Set as background in slice views and reset.
+    for color in ["Red", "Green", "Yellow"]:
+        sw = slicer.app.layoutManager().sliceWidget(color)
+        if sw is not None:
+            sw.sliceLogic().GetSliceCompositeNode().SetBackgroundVolumeID(volume_node.GetID())
+    slicer.util.resetSliceViews()
+    print(f"SUCCESS: loaded {volume_node.GetName()} dims={volume_node.GetImageData().GetDimensions()}")
 PYEOF
 
-# Set environment and run script
-export DICOM_DIR="$DICOM_DIR"
-
-# Use xdotool to open Python console and run the script
+echo "Launching 3D Slicer with chest CT pre-loaded..."
+pkill -f "Slicer" 2>/dev/null || true
 sleep 2
-DISPLAY=:1 xdotool key ctrl+3  # Toggle Python interactor
-sleep 2
-DISPLAY=:1 xdotool type "exec(open('/tmp/load_lidc_dicom.py').read())"
-sleep 1
-DISPLAY=:1 xdotool key Return
-sleep 15  # Wait for DICOM import and loading
-
-# Close Python console
-DISPLAY=:1 xdotool key ctrl+3
-sleep 1
+sudo -u ga DISPLAY=:1 IMG_FILE="$IMG_FILE" /opt/Slicer/Slicer --python-script /tmp/load_lidc_ct.py > /tmp/slicer_launch.log 2>&1 &
+wait_for_slicer 90
 
 # ============================================================
 # Take initial screenshot

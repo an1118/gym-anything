@@ -115,7 +115,7 @@ SLICERCONF
 
     # Try GitHub releases first
     if curl -L -o MRHead.nrrd --connect-timeout 30 --max-time 120 \
-        "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286c4b0c71defe6e4f5f8" 2>/dev/null; then
+        "https://github.com/Slicer/SlicerTestingData/releases/download/SHA256/cc211f0dfd9a05ca3841ce1141b292898b2dd2d3f08286affadf823a7e58df93" 2>/dev/null; then
         if [ -f MRHead.nrrd ] && [ $(stat -c%s MRHead.nrrd 2>/dev/null || echo 0) -gt 1000000 ]; then
             echo "    Downloaded MRHead.nrrd successfully"
             MRHEAD_DOWNLOADED=true
