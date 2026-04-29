@@ -14,7 +14,7 @@
 # Atomic temp-then-mv keeps concurrent writers from observing partial
 # files. The on-host cache lives at .../slicer3d_env/data_cache.
 
-set -e
+set -eo pipefail
 
 BRATS_DIR="/home/ga/Documents/SlicerData/BraTS"
 GROUND_TRUTH_DIR="/var/lib/slicer/ground_truth"

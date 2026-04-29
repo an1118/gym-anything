@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Surgical Anatomy Briefing Task ==="
 
 source /workspace/scripts/task_utils.sh

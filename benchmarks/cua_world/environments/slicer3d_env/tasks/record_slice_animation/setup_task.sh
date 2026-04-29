@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Record Slice Animation Task ==="
 
 source /workspace/scripts/task_utils.sh

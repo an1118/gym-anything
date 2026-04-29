@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Brain Tumor Edema Index Task ==="
 
 # Source shared utilities

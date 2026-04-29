@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Renal Cyst Bosniak Classification Task ==="
 
 # Source utilities

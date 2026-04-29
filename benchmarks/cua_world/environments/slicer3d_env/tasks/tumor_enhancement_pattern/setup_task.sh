@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Tumor Enhancement Pattern Task ==="
 
 source /workspace/scripts/task_utils.sh

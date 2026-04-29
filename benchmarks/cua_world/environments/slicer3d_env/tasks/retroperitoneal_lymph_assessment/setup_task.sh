@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Retroperitoneal Lymph Node Assessment Task ==="
 
 source /workspace/scripts/task_utils.sh

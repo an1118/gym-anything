@@ -19,7 +19,7 @@
 #   /home/ga/Documents/SlicerData/LIDC/<PATIENT_ID>/<PATIENT_ID>_msk.nii.gz
 #   /var/lib/slicer/ground_truth/<PATIENT_ID>_nodules.json   (derived from mask)
 
-set -e
+set -eo pipefail
 
 LIDC_DIR="/home/ga/Documents/SlicerData/LIDC"
 GROUND_TRUTH_DIR="/var/lib/slicer/ground_truth"

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Sample Voxel Intensities Task ==="
 
 # Source utilities

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up L3 Sarcopenia Assessment Task ==="
 
 source /workspace/scripts/task_utils.sh

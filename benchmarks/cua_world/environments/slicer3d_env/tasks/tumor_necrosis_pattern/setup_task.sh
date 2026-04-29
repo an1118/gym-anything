@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Tumor Necrosis Pattern Analysis Task ==="
 
 source /workspace/scripts/task_utils.sh

@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Segment Lung Airways Task ==="
 
 # Source utilities
@@ -17,7 +18,7 @@ PATIENT_ID="LIDC-IDRI-0001"
 
 mkdir -p "$LIDC_DIR"
 mkdir -p "$EXPORT_DIR"
-chown -R ga:ga /home/ga/Documents/SlicerData
+chown -R ga:ga /home/ga/Documents/SlicerData 2>/dev/null || true
 
 echo "Preparing LIDC chest CT data..."
 /workspace/scripts/prepare_lidc_data.sh "$PATIENT_ID" 2>&1 || {

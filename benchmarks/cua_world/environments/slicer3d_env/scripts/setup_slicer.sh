@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 # set -euo pipefail
 
 echo "=== Setting up 3D Slicer configuration ==="
@@ -52,10 +53,10 @@ setup_user_slicer() {
     mkdir -p "$home_dir/Documents/SlicerData/Screenshots"
     mkdir -p "$home_dir/Documents/SlicerData/Exports"
     mkdir -p "$home_dir/Desktop"
-    chown -R $username:$username "$home_dir/.config"
-    chown -R $username:$username "$home_dir/.local"
-    chown -R $username:$username "$home_dir/Documents"
-    chown -R $username:$username "$home_dir/Desktop"
+    chown -R $username:$username "$home_dir/.config" 2>/dev/null || true
+    chown -R $username:$username "$home_dir/.local" 2>/dev/null || true
+    chown -R $username:$username "$home_dir/Documents" 2>/dev/null || true
+    chown -R $username:$username "$home_dir/Desktop" 2>/dev/null || true
 
     # Create default Slicer settings to disable first-run dialogs and enable quiet start
     # Slicer uses INI-style config files
@@ -95,7 +96,7 @@ SLICERCONF
     # Replace /home/ga with actual home dir
     sed -i "s|/home/ga|$home_dir|g" "$SLICER_CONFIG_DIR/Slicer.ini"
     chown $username:$username "$SLICER_CONFIG_DIR/Slicer.ini"
-    chown -R $username:$username "$SLICER_CONFIG_DIR"
+    chown -R $username:$username "$SLICER_CONFIG_DIR" 2>/dev/null || true
     echo "  - Created Slicer configuration"
 
     # Download sample DICOM data for tasks
@@ -187,7 +188,7 @@ PYEOF
     fi
 
     # Set permissions
-    chown -R $username:$username "$home_dir/Documents/SlicerData"
+    chown -R $username:$username "$home_dir/Documents/SlicerData" 2>/dev/null || true
 
     # Create desktop shortcut
     cat > "$home_dir/Desktop/Slicer.desktop" << 'DESKTOPEOF'

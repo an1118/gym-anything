@@ -15,7 +15,7 @@
 # that uses AMOS data shares this single case ID, so subsequent reuses
 # of the same container hit the early-return path.
 
-set -e
+set -eo pipefail
 
 AMOS_DIR="/home/ga/Documents/SlicerData/AMOS"
 GROUND_TRUTH_DIR="/var/lib/slicer/ground_truth"

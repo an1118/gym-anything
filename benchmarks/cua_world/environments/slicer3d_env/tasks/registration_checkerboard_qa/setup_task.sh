@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Registration Checkerboard QA Task ==="
 
 source /workspace/scripts/task_utils.sh
@@ -13,7 +14,7 @@ MRHEAD_SHIFTED_FILE="$SAMPLE_DIR/MRHead_Shifted.nrrd"
 mkdir -p "$SAMPLE_DIR"
 mkdir -p "$EXPORTS_DIR"
 mkdir -p "$GROUND_TRUTH_DIR"
-chown -R ga:ga /home/ga/Documents/SlicerData
+chown -R ga:ga /home/ga/Documents/SlicerData 2>/dev/null || true
 
 # Record task start time for anti-gaming
 date +%s > /tmp/task_start_time.txt
@@ -160,9 +161,9 @@ fi
 echo "Shifted file: $(du -h "$MRHEAD_SHIFTED_FILE" | cut -f1)"
 
 # Set permissions
-chown -R ga:ga "$SAMPLE_DIR"
-chown -R ga:ga "$EXPORTS_DIR"
-chmod 700 "$GROUND_TRUTH_DIR"
+chown -R ga:ga "$SAMPLE_DIR" 2>/dev/null || true
+chown -R ga:ga "$EXPORTS_DIR" 2>/dev/null || true
+chmod 700 "$GROUND_TRUTH_DIR" 2>/dev/null || true
 
 # ============================================================
 # Launch 3D Slicer with both volumes

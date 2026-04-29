@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Segmentation Margin Expansion Task ==="
 
 source /workspace/scripts/task_utils.sh

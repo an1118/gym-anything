@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Multi-Tissue CT Segmentation Task ==="
 
 source /workspace/scripts/task_utils.sh

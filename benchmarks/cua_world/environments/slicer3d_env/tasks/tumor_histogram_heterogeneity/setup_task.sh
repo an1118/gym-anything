@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Tumor Histogram Heterogeneity Task ==="
 
 # Source utilities

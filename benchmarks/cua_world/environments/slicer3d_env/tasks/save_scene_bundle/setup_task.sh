@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Save Scene Bundle Task ==="
 
 source /workspace/scripts/task_utils.sh
@@ -16,7 +17,7 @@ OUTPUT_FILE="$EXPORTS_DIR/annotated_brain_scene.mrb"
 # Ensure directories exist
 mkdir -p "$SAMPLE_DIR"
 mkdir -p "$EXPORTS_DIR"
-chown -R ga:ga "/home/ga/Documents/SlicerData"
+chown -R ga:ga "/home/ga/Documents/SlicerData" 2>/dev/null || true
 
 # Clean up any existing output file (ensure fresh task state)
 if [ -f "$OUTPUT_FILE" ]; then

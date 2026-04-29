@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Resample Isotropic Volume Task ==="
 
 # Source utilities

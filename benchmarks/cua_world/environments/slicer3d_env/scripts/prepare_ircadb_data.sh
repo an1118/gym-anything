@@ -12,7 +12,7 @@
 # - Multi-label segmentation: 1=liver, 2=tumor, 3=portal vein
 # - Ground truth JSON with volume, count, distance, and invasion info
 
-set -e
+set -eo pipefail
 
 IRCADB_DIR="/home/ga/Documents/SlicerData/IRCADb"
 GROUND_TRUTH_DIR="/var/lib/slicer/ground_truth"

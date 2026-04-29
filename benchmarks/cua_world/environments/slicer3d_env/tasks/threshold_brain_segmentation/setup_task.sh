@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Threshold Brain Segmentation Task ==="
 
 source /workspace/scripts/task_utils.sh
@@ -13,7 +14,7 @@ mkdir -p "$OUTPUT_DIR"
 rm -f "$OUTPUT_DIR/brain_segmentation.seg.nrrd" 2>/dev/null || true
 rm -f "$OUTPUT_DIR/brain_segmentation.nrrd" 2>/dev/null || true
 rm -f "$OUTPUT_DIR/*.seg.nrrd" 2>/dev/null || true
-chown -R ga:ga "$OUTPUT_DIR"
+chown -R ga:ga "$OUTPUT_DIR" 2>/dev/null || true
 
 # Record initial state - no segmentation files should exist
 INITIAL_SEG_COUNT=$(ls -1 "$OUTPUT_DIR"/*.seg.nrrd 2>/dev/null | wc -l || echo "0")

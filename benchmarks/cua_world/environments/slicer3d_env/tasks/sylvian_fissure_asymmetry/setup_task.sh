@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Sylvian Fissure Asymmetry Assessment Task ==="
 
 source /workspace/scripts/task_utils.sh

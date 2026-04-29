@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Volume Rendering Bone Task ==="
 
 source /workspace/scripts/task_utils.sh
@@ -11,7 +12,7 @@ VOLUME_FILE="$AMOS_DIR/${CASE_ID}.nii.gz"
 # Create necessary directories
 mkdir -p "$AMOS_DIR"
 mkdir -p "$SCREENSHOT_DIR"
-chown -R ga:ga /home/ga/Documents/SlicerData
+chown -R ga:ga /home/ga/Documents/SlicerData 2>/dev/null || true
 
 # Record task start time for anti-gaming
 date +%s > /tmp/task_start_time.txt

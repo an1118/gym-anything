@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Verify Anatomical Orientation Task ==="
 
 source /workspace/scripts/task_utils.sh

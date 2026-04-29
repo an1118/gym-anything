@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up SMA Angle Measurement Task ==="
 
 # Source utilities

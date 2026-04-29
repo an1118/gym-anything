@@ -1,6 +1,9 @@
 #!/bin/bash
-# Don't use set -e since we want to handle errors gracefully
-# This script must complete within ~300 seconds (SSH timeout)
+set -eo pipefail
+# Strict mode — failures should surface, not silently leave the container
+# in a half-installed state. Operations that may legitimately exit non-zero
+# (apt-get fallbacks, ldconfig grep checks) are wrapped with `|| true`.
+# This script must complete within ~300 seconds (SSH timeout).
 
 echo "=== Installing 3D Slicer ==="
 START_TIME=$(date +%s)

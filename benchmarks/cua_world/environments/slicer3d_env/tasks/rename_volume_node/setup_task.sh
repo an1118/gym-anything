@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Rename Volume Node task ==="
 
 source /workspace/scripts/task_utils.sh

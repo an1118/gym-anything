@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eo pipefail
 echo "=== Setting up Smooth Surface Model Task ==="
 
 source /workspace/scripts/task_utils.sh
@@ -14,7 +15,7 @@ date +%s > /tmp/task_start_time.txt
 # Create directories
 mkdir -p "$BRATS_DIR"
 mkdir -p "$GROUND_TRUTH_DIR"
-chmod 700 "$GROUND_TRUTH_DIR"
+chmod 700 "$GROUND_TRUTH_DIR" 2>/dev/null || true
 
 # Clean any previous task outputs
 rm -f "$OUTPUT_MODEL" 2>/dev/null || true
