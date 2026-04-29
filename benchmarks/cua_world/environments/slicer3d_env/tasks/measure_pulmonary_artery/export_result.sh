@@ -160,8 +160,14 @@ except Exception as e:
     print(json.dumps({"markup_exists": False, "volume_loaded": False}))
 PYEOF
 
-    # Run query with timeout
-    SLICER_QUERY_RESULT=$(timeout 15 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-code "$(cat $QUERY_SCRIPT)" 2>/dev/null || echo '{"markup_exists": false}')
+    # Run query with timeout. Capture via tempfile, not bash $() pipe — a
+    # leaked Slicer grandchild that survives `timeout` would otherwise hold
+    # the $() capture pipe open and deadlock bash indefinitely.
+    SLICER_QUERY_FILE=$(mktemp /tmp/slicer_query.XXXXXX.json)
+    echo '{"markup_exists": false}' > "$SLICER_QUERY_FILE"
+    timeout 15 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-code "$(cat $QUERY_SCRIPT)" > "$SLICER_QUERY_FILE" 2>/dev/null </dev/null || true
+    SLICER_QUERY_RESULT=$(cat "$SLICER_QUERY_FILE")
+    rm -f "$SLICER_QUERY_FILE"
     rm -f "$QUERY_SCRIPT"
     
     # Parse results

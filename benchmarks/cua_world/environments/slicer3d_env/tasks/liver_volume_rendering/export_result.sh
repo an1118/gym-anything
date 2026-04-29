@@ -137,7 +137,12 @@ except Exception as e:
 print(json.dumps(result))
 PYEOF
 
-    SLICER_STATE=$(sudo -u ga DISPLAY=:1 timeout 30 /opt/Slicer/Slicer --no-splash --no-main-window --python-script /tmp/query_vr_state.py 2>/dev/null | tail -1)
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock.
+    SLICER_OUT_FILE=$(mktemp /tmp/slicer_out.XXXXXX.txt)
+    timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-splash --no-main-window --python-script /tmp/query_vr_state.py > "$SLICER_OUT_FILE" 2>/dev/null </dev/null || true
+    SLICER_STATE=$(tail -1 "$SLICER_OUT_FILE" 2>/dev/null || echo "")
+    rm -f "$SLICER_OUT_FILE"
     
     if [ -n "$SLICER_STATE" ] && echo "$SLICER_STATE" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
         echo "Slicer state query result: $SLICER_STATE"

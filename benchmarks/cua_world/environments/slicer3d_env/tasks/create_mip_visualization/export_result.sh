@@ -217,17 +217,21 @@ PYEOF
 if [ "$SLICER_RUNNING" = "true" ]; then
     echo "Querying Slicer state..."
     
-    # Run Python script in Slicer context
-    SLICER_STATE=$(timeout 15 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-code \"
+    # Run Python script in Slicer context. Capture via tempfile, not bash
+    # $() pipe — leaked --no-main-window Slicer grandchild that survives
+    # `timeout` would otherwise hold the $() pipe open and deadlock bash.
+    # Also writes the python source to a tempfile to avoid escaping hell.
+    MIP_PY_FILE=$(mktemp /tmp/mip_query.XXXXXX.py)
+    cat > "$MIP_PY_FILE" << 'MIPPY'
 import json
 try:
     import slicer
     result = {'volume_loaded': False, 'slab_mode_active': False, 'slab_type': 'unknown', 'slab_thickness_mm': 0}
-    
+
     volumes = slicer.util.getNodesByClass('vtkMRMLScalarVolumeNode')
     if volumes.GetNumberOfItems() > 0:
         result['volume_loaded'] = True
-    
+
     layout_manager = slicer.app.layoutManager()
     if layout_manager:
         green_widget = layout_manager.sliceWidget('Green')
@@ -242,11 +246,16 @@ try:
                 vol = volumes.GetItemAsObject(0)
                 spacing = vol.GetSpacing()
                 result['slab_thickness_mm'] = slice_node.GetSlabNumberOfSlices() * spacing[1]
-    
+
     print('SLICER_STATE:' + json.dumps(result))
 except Exception as e:
     print('SLICER_STATE:' + json.dumps({'error': str(e)}))
-\" --no-main-window --exit-after-startup 2>/dev/null | grep 'SLICER_STATE:' | sed 's/SLICER_STATE://'") 2>/dev/null || echo "{}")
+MIPPY
+    SLICER_OUT_FILE=$(mktemp /tmp/slicer_out.XXXXXX.txt)
+    timeout 15 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-script $MIP_PY_FILE --no-main-window --exit-after-startup > $SLICER_OUT_FILE 2>/dev/null" </dev/null >/dev/null 2>&1 || true
+    SLICER_STATE=$(grep 'SLICER_STATE:' "$SLICER_OUT_FILE" 2>/dev/null | sed 's/SLICER_STATE://' | head -1)
+    [ -z "$SLICER_STATE" ] && SLICER_STATE='{}'
+    rm -f "$MIP_PY_FILE" "$SLICER_OUT_FILE"
     
     if [ -n "$SLICER_STATE" ] && echo "$SLICER_STATE" | python3 -c "import json,sys; json.load(sys.stdin)" 2>/dev/null; then
         VOLUME_LOADED=$(echo "$SLICER_STATE" | python3 -c "import json,sys; print('true' if json.load(sys.stdin).get('volume_loaded', False) else 'false')" 2>/dev/null || echo "false")

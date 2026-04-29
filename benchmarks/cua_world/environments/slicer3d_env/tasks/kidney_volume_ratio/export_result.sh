@@ -97,7 +97,13 @@ else:
     print("NO_STATS")
 PYEOF
 
-    STATS_OUTPUT=$(sudo -u ga DISPLAY=:1 timeout 10 /opt/Slicer/Slicer --python-script "$STATS_CHECK_SCRIPT" --no-main-window 2>/dev/null || echo "")
+    # Capture via tempfile, not bash $() pipe — a leaked --no-main-window
+    # Slicer grandchild that survives `timeout` would otherwise hold the $()
+    # capture pipe open and deadlock bash indefinitely.
+    STATS_OUTPUT_FILE=$(mktemp /tmp/stats_output.XXXXXX.txt)
+    timeout 10 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script "$STATS_CHECK_SCRIPT" --no-main-window > "$STATS_OUTPUT_FILE" 2>/dev/null </dev/null || true
+    STATS_OUTPUT=$(cat "$STATS_OUTPUT_FILE")
+    rm -f "$STATS_OUTPUT_FILE"
     
     if echo "$STATS_OUTPUT" | grep -q "STATS_FOUND"; then
         STATS_COMPUTED="true"

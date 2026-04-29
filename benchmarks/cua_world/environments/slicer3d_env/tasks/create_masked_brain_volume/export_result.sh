@@ -246,7 +246,14 @@ except Exception as e:
     print(json.dumps({"error": str(e)}))
 PYEOF
 
-    SCENE_INFO=$(sudo -u ga DISPLAY=:1 timeout 10 /opt/Slicer/Slicer --no-main-window --python-script /tmp/check_scene.py 2>/dev/null || echo '{}')
+    # Capture via tempfile, not bash $() pipe — a leaked --no-main-window
+    # Slicer grandchild that survives `timeout` would otherwise hold the $()
+    # capture pipe open and deadlock bash indefinitely.
+    SCENE_INFO_FILE=$(mktemp /tmp/scene_info.XXXXXX.json)
+    echo '{}' > "$SCENE_INFO_FILE"
+    timeout 10 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-script /tmp/check_scene.py > "$SCENE_INFO_FILE" 2>/dev/null </dev/null || true
+    SCENE_INFO=$(cat "$SCENE_INFO_FILE")
+    rm -f "$SCENE_INFO_FILE"
     if echo "$SCENE_INFO" | grep -q "segmentation_count"; then
         SEG_COUNT=$(echo "$SCENE_INFO" | python3 -c "import json,sys; print(json.load(sys.stdin).get('segmentation_count', 0))" 2>/dev/null || echo "0")
         if [ "$SEG_COUNT" -gt 0 ]; then

@@ -214,26 +214,53 @@ fi
 # Calculate file size in KB
 FILE_SIZE_KB=$((FILE_SIZE / 1024))
 
-# Create result JSON
+# Create result JSON via Python to defend against empty / multi-line / quoted
+# bash vars (e.g. ANALYSIS_ERROR may carry a Python traceback with embedded
+# quotes that broke the bash heredoc form).
 TEMP_JSON=$(mktemp /tmp/result.XXXXXX.json)
-cat > "$TEMP_JSON" << EOF
-{
-    "task_start_time": $TASK_START,
-    "task_end_time": $TASK_END,
-    "slicer_was_running": $SLICER_RUNNING,
-    "screenshot_exists": $SCREENSHOT_EXISTS,
-    "segmentation_file_exists": $FILE_EXISTS,
-    "segmentation_file_path": "$FILE_PATH",
-    "file_size_bytes": $FILE_SIZE,
-    "file_size_kb": $FILE_SIZE_KB,
-    "file_created_during_task": $FILE_CREATED_DURING_TASK,
-    "voxel_count": $VOXEL_COUNT,
-    "mean_intensity": $MEAN_INTENSITY,
-    "valid_location": $VALID_LOCATION,
-    "valid_intensity": $VALID_INTENSITY,
-    "analysis_error": "$ANALYSIS_ERROR"
+export TASK_START TASK_END SLICER_RUNNING SCREENSHOT_EXISTS FILE_EXISTS \
+       FILE_PATH FILE_SIZE FILE_SIZE_KB FILE_CREATED_DURING_TASK \
+       VOXEL_COUNT MEAN_INTENSITY VALID_LOCATION VALID_INTENSITY \
+       ANALYSIS_ERROR TEMP_JSON
+python3 << 'PYEOF'
+import json, os
+
+def truthy(v):
+    return str(v).strip().lower() == "true"
+
+def as_int(v, default=0):
+    try:
+        return int(str(v).strip().splitlines()[-1])
+    except (ValueError, TypeError, IndexError):
+        return default
+
+def as_float(v, default=0.0):
+    try:
+        return float(str(v).strip().splitlines()[-1])
+    except (ValueError, TypeError, IndexError):
+        return default
+
+env = os.environ
+result = {
+    "task_start_time": as_int(env.get("TASK_START")),
+    "task_end_time": as_int(env.get("TASK_END")),
+    "slicer_was_running": truthy(env.get("SLICER_RUNNING")),
+    "screenshot_exists": truthy(env.get("SCREENSHOT_EXISTS")),
+    "segmentation_file_exists": truthy(env.get("FILE_EXISTS")),
+    "segmentation_file_path": env.get("FILE_PATH", ""),
+    "file_size_bytes": as_int(env.get("FILE_SIZE")),
+    "file_size_kb": as_int(env.get("FILE_SIZE_KB")),
+    "file_created_during_task": truthy(env.get("FILE_CREATED_DURING_TASK")),
+    "voxel_count": as_int(env.get("VOXEL_COUNT")),
+    "mean_intensity": as_float(env.get("MEAN_INTENSITY")),
+    "valid_location": truthy(env.get("VALID_LOCATION")),
+    "valid_intensity": truthy(env.get("VALID_INTENSITY")),
+    "analysis_error": env.get("ANALYSIS_ERROR", ""),
 }
-EOF
+
+with open(env["TEMP_JSON"], "w") as f:
+    json.dump(result, f, indent=2)
+PYEOF
 
 # Move to final location with permission handling
 RESULT_FILE="/tmp/seg_task_result.json"

@@ -63,11 +63,18 @@ fi
 # Check if any Line markup exists in Slicer
 LINE_EXISTS=false
 if $SLICER_RUNNING; then
-    LINE_CHECK=$(sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-code "
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock.
+    LINE_PY_FILE=$(mktemp /tmp/line_query.XXXXXX.py)
+    cat > "$LINE_PY_FILE" << 'LINEPY'
 import slicer
 nodes = slicer.util.getNodesByClass('vtkMRMLMarkupsLineNode')
 print('true' if nodes else 'false')
-" 2>/dev/null | tail -1)
+LINEPY
+    LINE_OUT_FILE=$(mktemp /tmp/line_out.XXXXXX.txt)
+    timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-script "$LINE_PY_FILE" > "$LINE_OUT_FILE" 2>/dev/null </dev/null || true
+    LINE_CHECK=$(tail -1 "$LINE_OUT_FILE" 2>/dev/null || echo "false")
+    rm -f "$LINE_PY_FILE" "$LINE_OUT_FILE"
     if [ "$LINE_CHECK" = "true" ]; then
         LINE_EXISTS=true
     fi

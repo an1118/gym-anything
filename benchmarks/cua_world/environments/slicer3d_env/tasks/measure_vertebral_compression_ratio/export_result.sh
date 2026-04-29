@@ -79,8 +79,13 @@ if measurements:
 print(f"LINE_COUNT:{len(line_nodes)}")
 PYEOF
 
-    # Run extraction script
-    EXTRACT_OUTPUT=$(su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --no-splash --no-main-window --python-script /tmp/extract_vcr_measurements.py 2>&1" || echo "")
+    # Run extraction script. Capture via tempfile, not bash $() pipe — leaked
+    # --no-main-window Slicer grandchild would otherwise hold the $() pipe
+    # open and deadlock bash. Also: previously had no timeout; bound to 30s.
+    EXTRACT_OUT_FILE=$(mktemp /tmp/extract_out.XXXXXX.txt)
+    timeout 30 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --no-splash --no-main-window --python-script /tmp/extract_vcr_measurements.py > $EXTRACT_OUT_FILE 2>&1" </dev/null >/dev/null 2>&1 || true
+    EXTRACT_OUTPUT=$(cat "$EXTRACT_OUT_FILE" 2>/dev/null || echo "")
+    rm -f "$EXTRACT_OUT_FILE"
     
     # Parse line count from output
     MARKUP_LINE_COUNT=$(echo "$EXTRACT_OUTPUT" | grep -o "LINE_COUNT:[0-9]*" | cut -d: -f2 || echo "0")

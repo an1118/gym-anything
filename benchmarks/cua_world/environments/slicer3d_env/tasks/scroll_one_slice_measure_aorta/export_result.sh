@@ -52,11 +52,18 @@ fi
 # Get current slice position to check if scrolled
 CURRENT_SLICE=0
 if $SLICER_RUNNING; then
-    CURRENT_SLICE=$(sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-code "
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock.
+    SLICE_PY_FILE=$(mktemp /tmp/slice_query.XXXXXX.py)
+    cat > "$SLICE_PY_FILE" << 'SLICEPY'
 import slicer
 red_logic = slicer.app.layoutManager().sliceWidget('Red').sliceLogic()
 print(f'{red_logic.GetSliceOffset():.2f}')
-" 2>/dev/null | tail -1)
+SLICEPY
+    SLICE_OUT_FILE=$(mktemp /tmp/slice_out.XXXXXX.txt)
+    timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-script "$SLICE_PY_FILE" > "$SLICE_OUT_FILE" 2>/dev/null </dev/null || true
+    CURRENT_SLICE=$(tail -1 "$SLICE_OUT_FILE" 2>/dev/null || echo "0")
+    rm -f "$SLICE_PY_FILE" "$SLICE_OUT_FILE"
 fi
 
 # Get initial positions

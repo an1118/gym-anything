@@ -121,7 +121,15 @@ except Exception as e:
     print(json.dumps({"error": str(e)}))
 SLICEPOS
 
-    SLICE_INFO=$(su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-code '$(cat /tmp/get_slice_pos.py)' --no-main-window" 2>/dev/null | grep -o '{.*}' | head -1 || echo "{}")
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock
+    # bash. Also: previously had no timeout; bound to 30s.
+    SLICE_OUT_FILE=$(mktemp /tmp/slice_out.XXXXXX.txt)
+    SLICE_PY_CODE=$(cat /tmp/get_slice_pos.py)
+    timeout 30 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-code '$SLICE_PY_CODE' --no-main-window > $SLICE_OUT_FILE 2>/dev/null" </dev/null >/dev/null 2>&1 || true
+    SLICE_INFO=$(grep -o '{.*}' "$SLICE_OUT_FILE" 2>/dev/null | head -1)
+    [ -z "$SLICE_INFO" ] && SLICE_INFO='{}'
+    rm -f "$SLICE_OUT_FILE"
     CURRENT_SLICE_Z=$(echo "$SLICE_INFO" | python3 -c "import json, sys; print(json.load(sys.stdin).get('slice_offset', 'null'))" 2>/dev/null || echo "null")
 fi
 

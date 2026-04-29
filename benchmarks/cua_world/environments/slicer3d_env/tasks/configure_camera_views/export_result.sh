@@ -118,7 +118,13 @@ except Exception as e:
 print(json.dumps(result))
 PYEOF
 
-    VR_CHECK=$(sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/check_vr.py --no-main-window 2>/dev/null | tail -1)
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock
+    # bash. Also: previously had no timeout; bound to 30s.
+    VR_CHECK_FILE=$(mktemp /tmp/vr_check.XXXXXX.txt)
+    timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/check_vr.py --no-main-window > "$VR_CHECK_FILE" 2>/dev/null </dev/null || true
+    VR_CHECK=$(tail -1 "$VR_CHECK_FILE" 2>/dev/null || echo "")
+    rm -f "$VR_CHECK_FILE"
     
     if echo "$VR_CHECK" | grep -q "volume_rendering_enabled"; then
         VOLUME_RENDERING_ENABLED=$(echo "$VR_CHECK" | python3 -c "import sys,json; print('true' if json.load(sys.stdin).get('volume_rendering_enabled', False) else 'false')" 2>/dev/null || echo "false")

@@ -184,28 +184,53 @@ fi
 echo "Creating result JSON..."
 
 TEMP_JSON=$(mktemp /tmp/result.XXXXXX.json)
-cat > "$TEMP_JSON" << EOF
-{
-    "task_start_time": $TASK_START,
-    "task_end_time": $TASK_END,
-    "task_duration_seconds": $((TASK_END - TASK_START)),
-    "output_exists": $OUTPUT_EXISTS,
-    "output_path": "$OUTPUT_PATH",
-    "output_size_bytes": $OUTPUT_SIZE_BYTES,
-    "output_size_kb": $OUTPUT_SIZE_KB,
-    "output_mtime": $OUTPUT_MTIME,
-    "file_created_during_task": $FILE_CREATED_DURING_TASK,
-    "valid_gif_format": $VALID_GIF_FORMAT,
-    "gif_frame_count": $GIF_FRAME_COUNT,
-    "new_gif_count": $NEW_GIF_COUNT,
-    "slicer_was_running": $SLICER_RUNNING,
-    "screen_capture_accessed": $SCREEN_CAPTURE_ACCESSED,
-    "frames_extracted": $FRAMES_EXTRACTED,
+# Build the JSON in Python to defend against empty/multi-line bash vars.
+# Bash heredoc interpolation previously produced malformed JSON when one
+# of the value vars (e.g. GIF_FRAME_COUNT capturing python stderr) spilled
+# extra newlines or evaluated to empty.
+export TASK_START TASK_END OUTPUT_EXISTS OUTPUT_PATH OUTPUT_SIZE_BYTES \
+       OUTPUT_SIZE_KB OUTPUT_MTIME FILE_CREATED_DURING_TASK \
+       VALID_GIF_FORMAT GIF_FRAME_COUNT NEW_GIF_COUNT SLICER_RUNNING \
+       SCREEN_CAPTURE_ACCESSED FRAMES_EXTRACTED TEMP_JSON
+python3 << 'PYEOF'
+import json, os
+
+def truthy(v):
+    return str(v).strip().lower() == "true"
+
+def as_int(v, default=0):
+    try:
+        return int(str(v).strip().splitlines()[-1])
+    except (ValueError, TypeError, IndexError):
+        return default
+
+env = os.environ
+ts, te = as_int(env.get("TASK_START")), as_int(env.get("TASK_END"))
+
+result = {
+    "task_start_time": ts,
+    "task_end_time": te,
+    "task_duration_seconds": te - ts,
+    "output_exists": truthy(env.get("OUTPUT_EXISTS")),
+    "output_path": env.get("OUTPUT_PATH", ""),
+    "output_size_bytes": as_int(env.get("OUTPUT_SIZE_BYTES")),
+    "output_size_kb": as_int(env.get("OUTPUT_SIZE_KB")),
+    "output_mtime": as_int(env.get("OUTPUT_MTIME")),
+    "file_created_during_task": truthy(env.get("FILE_CREATED_DURING_TASK")),
+    "valid_gif_format": truthy(env.get("VALID_GIF_FORMAT")),
+    "gif_frame_count": as_int(env.get("GIF_FRAME_COUNT")),
+    "new_gif_count": as_int(env.get("NEW_GIF_COUNT")),
+    "slicer_was_running": truthy(env.get("SLICER_RUNNING")),
+    "screen_capture_accessed": truthy(env.get("SCREEN_CAPTURE_ACCESSED")),
+    "frames_extracted": truthy(env.get("FRAMES_EXTRACTED")),
     "screenshot_path": "/tmp/task_final.png",
     "gif_copy_path": "/tmp/output_animation.gif",
-    "frames_dir": "/tmp/gif_frames"
+    "frames_dir": "/tmp/gif_frames",
 }
-EOF
+
+with open(env["TEMP_JSON"], "w") as f:
+    json.dump(result, f, indent=2)
+PYEOF
 
 # Move to final location with permission handling
 rm -f /tmp/task_result.json 2>/dev/null || sudo rm -f /tmp/task_result.json 2>/dev/null || true

@@ -246,29 +246,59 @@ fi
 
 # Create result JSON
 TEMP_JSON=$(mktemp /tmp/result.XXXXXX.json)
-cat > "$TEMP_JSON" << EOF
-{
-    "task_start": $TASK_START,
-    "task_end": $TASK_END,
-    "slicer_was_running": $SLICER_RUNNING,
-    "roi_exists": $ROI_EXISTS,
-    "roi_count": $ROI_COUNT,
-    "roi_center_r": $ROI_CENTER_R,
-    "roi_center_a": $ROI_CENTER_A,
-    "roi_center_s": $ROI_CENTER_S,
-    "roi_size_x": $ROI_SIZE_X,
-    "roi_size_y": $ROI_SIZE_Y,
-    "roi_size_z": $ROI_SIZE_Z,
-    "volume_rendering_active": $VR_ACTIVE,
-    "roi_cropping_enabled": $ROI_CROPPING_ENABLED,
-    "roi_linked_to_vr": $ROI_LINKED,
-    "screenshot_exists": $SCREENSHOT_EXISTS,
-    "screenshot_size_kb": $SCREENSHOT_SIZE_KB,
-    "screenshot_created_during_task": $SCREENSHOT_CREATED_DURING_TASK,
-    "final_screenshot_size_kb": $FINAL_SCREENSHOT_SIZE_KB,
-    "timestamp": "$(date -Iseconds)"
+# Build the JSON in Python with safe defaults — bash heredoc interpolation
+# previously emitted invalid JSON when one of these vars was empty / multi-line.
+export TASK_START TASK_END SLICER_RUNNING ROI_EXISTS ROI_COUNT \
+       ROI_CENTER_R ROI_CENTER_A ROI_CENTER_S ROI_SIZE_X ROI_SIZE_Y ROI_SIZE_Z \
+       VR_ACTIVE ROI_CROPPING_ENABLED ROI_LINKED SCREENSHOT_EXISTS \
+       SCREENSHOT_SIZE_KB SCREENSHOT_CREATED_DURING_TASK FINAL_SCREENSHOT_SIZE_KB \
+       TEMP_JSON
+TS_NOW=$(date -Iseconds)
+export TS_NOW
+python3 << 'PYEOF'
+import json, os
+
+def truthy(v):
+    return str(v).strip().lower() == "true"
+
+def as_int(v, default=0):
+    try:
+        return int(str(v).strip().splitlines()[-1])
+    except (ValueError, TypeError, IndexError):
+        return default
+
+def as_float(v, default=0.0):
+    try:
+        return float(str(v).strip().splitlines()[-1])
+    except (ValueError, TypeError, IndexError):
+        return default
+
+env = os.environ
+result = {
+    "task_start": as_int(env.get("TASK_START")),
+    "task_end": as_int(env.get("TASK_END")),
+    "slicer_was_running": truthy(env.get("SLICER_RUNNING")),
+    "roi_exists": truthy(env.get("ROI_EXISTS")),
+    "roi_count": as_int(env.get("ROI_COUNT")),
+    "roi_center_r": as_float(env.get("ROI_CENTER_R")),
+    "roi_center_a": as_float(env.get("ROI_CENTER_A")),
+    "roi_center_s": as_float(env.get("ROI_CENTER_S")),
+    "roi_size_x": as_float(env.get("ROI_SIZE_X")),
+    "roi_size_y": as_float(env.get("ROI_SIZE_Y")),
+    "roi_size_z": as_float(env.get("ROI_SIZE_Z")),
+    "volume_rendering_active": truthy(env.get("VR_ACTIVE")),
+    "roi_cropping_enabled": truthy(env.get("ROI_CROPPING_ENABLED")),
+    "roi_linked_to_vr": truthy(env.get("ROI_LINKED")),
+    "screenshot_exists": truthy(env.get("SCREENSHOT_EXISTS")),
+    "screenshot_size_kb": as_int(env.get("SCREENSHOT_SIZE_KB")),
+    "screenshot_created_during_task": truthy(env.get("SCREENSHOT_CREATED_DURING_TASK")),
+    "final_screenshot_size_kb": as_int(env.get("FINAL_SCREENSHOT_SIZE_KB")),
+    "timestamp": env.get("TS_NOW", ""),
 }
-EOF
+
+with open(env["TEMP_JSON"], "w") as f:
+    json.dump(result, f, indent=2)
+PYEOF
 
 # Move to final location with permission handling
 rm -f /tmp/roi_task_result.json 2>/dev/null || sudo rm -f /tmp/roi_task_result.json 2>/dev/null || true

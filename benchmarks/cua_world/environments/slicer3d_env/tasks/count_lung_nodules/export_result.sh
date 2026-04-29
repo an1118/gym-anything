@@ -39,14 +39,21 @@ fi
 # Check for point markups in Slicer
 POINT_COUNT_SLICER=0
 if $SLICER_RUNNING; then
-    POINT_COUNT_SLICER=$(sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-code "
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock.
+    PCS_PY_FILE=$(mktemp /tmp/pcs_query.XXXXXX.py)
+    cat > "$PCS_PY_FILE" << 'PCSPY'
 import slicer
 nodes = slicer.util.getNodesByClass('vtkMRMLMarkupsFiducialNode')
 count = 0
 for n in nodes:
     count += n.GetNumberOfControlPoints()
 print(count)
-" 2>/dev/null | tail -1)
+PCSPY
+    PCS_OUT_FILE=$(mktemp /tmp/pcs_out.XXXXXX.txt)
+    timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-script "$PCS_PY_FILE" > "$PCS_OUT_FILE" 2>/dev/null </dev/null || true
+    POINT_COUNT_SLICER=$(tail -1 "$PCS_OUT_FILE" 2>/dev/null || echo "0")
+    rm -f "$PCS_PY_FILE" "$PCS_OUT_FILE"
 fi
 
 cat > "$OUTPUT_FILE" << EOF

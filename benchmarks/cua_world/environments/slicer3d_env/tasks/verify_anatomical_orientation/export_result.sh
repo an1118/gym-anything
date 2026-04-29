@@ -201,56 +201,60 @@ echo "Creating result JSON..."
 
 TEMP_JSON=$(mktemp /tmp/result.XXXXXX.json)
 
-python3 << PYEOF
-import json
+# Pass values via env vars and use a *quoted* heredoc so bash interpolation
+# can't inject empty/multi-line values into Python source. Previously this
+# was an unquoted heredoc, so an empty $FIDUCIAL_COUNT became a Python
+# SyntaxError and the JSON file was never written (left at zero bytes).
+export TASK_START TASK_END CASE_ID SLICER_RUNNING OUTPUT_MARKUPS \
+       MARKUPS_CREATED FIDUCIALS_CREATED FIDUCIAL_COUNT HAS_REFERENCE \
+       LIVER_FIDUCIAL SPINE_FIDUCIAL HEART_FIDUCIAL TEMP_JSON
+python3 << 'PYEOF'
+import json, os
 
+def truthy(v):
+    return str(v).strip().lower() == "true"
+
+def as_int(v, default=0):
+    try:
+        return int(str(v).strip())
+    except (ValueError, TypeError):
+        return default
+
+def as_json_or_none(s):
+    s = (s or "").strip()
+    if not s:
+        return None
+    try:
+        return json.loads(s)
+    except Exception:
+        return None
+
+env = os.environ
 result = {
-    "task_start": $TASK_START,
-    "task_end": $TASK_END,
-    "case_id": "$CASE_ID",
-    "slicer_was_running": $([[ "$SLICER_RUNNING" == "true" ]] && echo "true" || echo "false"),
-    "markups_file_exists": $([[ -f "$OUTPUT_MARKUPS" ]] && echo "true" || echo "false"),
-    "markups_created_during_task": $([[ "$MARKUPS_CREATED" == "true" ]] && echo "true" || echo "false"),
-    "fiducials_created_during_task": $([[ "$FIDUCIALS_CREATED" == "true" ]] && echo "true" || echo "false"),
-    "total_fiducial_count": $FIDUCIAL_COUNT,
-    "has_reference": $([[ "$HAS_REFERENCE" == "true" ]] && echo "true" || echo "false"),
+    "task_start": as_int(env.get("TASK_START")),
+    "task_end": as_int(env.get("TASK_END")),
+    "case_id": env.get("CASE_ID", ""),
+    "slicer_was_running": truthy(env.get("SLICER_RUNNING")),
+    "markups_file_exists": os.path.isfile(env.get("OUTPUT_MARKUPS", "")),
+    "markups_created_during_task": truthy(env.get("MARKUPS_CREATED")),
+    "fiducials_created_during_task": truthy(env.get("FIDUCIALS_CREATED")),
+    "total_fiducial_count": as_int(env.get("FIDUCIAL_COUNT")),
+    "has_reference": truthy(env.get("HAS_REFERENCE")),
     "fiducials": {
-        "liver": None,
-        "spine": None,
-        "heart": None
-    }
+        "liver": as_json_or_none(env.get("LIVER_FIDUCIAL")),
+        "spine": as_json_or_none(env.get("SPINE_FIDUCIAL")),
+        "heart": as_json_or_none(env.get("HEART_FIDUCIAL")),
+    },
 }
 
-# Parse fiducial data
-liver_json = '''$LIVER_FIDUCIAL'''
-spine_json = '''$SPINE_FIDUCIAL'''
-heart_json = '''$HEART_FIDUCIAL'''
-
-try:
-    if liver_json.strip():
-        result["fiducials"]["liver"] = json.loads(liver_json)
-except:
-    pass
-
-try:
-    if spine_json.strip():
-        result["fiducials"]["spine"] = json.loads(spine_json)
-except:
-    pass
-
-try:
-    if heart_json.strip():
-        result["fiducials"]["heart"] = json.loads(heart_json)
-except:
-    pass
-
-# Count found fiducials
 result["liver_found"] = result["fiducials"]["liver"] is not None
 result["spine_found"] = result["fiducials"]["spine"] is not None
 result["heart_found"] = result["fiducials"]["heart"] is not None
-result["fiducials_found_count"] = sum([result["liver_found"], result["spine_found"], result["heart_found"]])
+result["fiducials_found_count"] = sum(
+    [result["liver_found"], result["spine_found"], result["heart_found"]]
+)
 
-with open("$TEMP_JSON", "w") as f:
+with open(env["TEMP_JSON"], "w") as f:
     json.dump(result, f, indent=2)
 
 print("Result JSON created")

@@ -139,8 +139,26 @@ except Exception as e:
 print(json.dumps(result))
 PYEOF
     
-    # Run the check script
-    SLICER_STATE=$(timeout 15 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/check_vr_state.py --no-main-window 2>/dev/null" 2>/dev/null || echo '{}')
+    # Run the check script.
+    #
+    # Capture Slicer's output via a tempfile, not bash's $() pipe. The
+    # earlier `SLICER_STATE=$(timeout 15 su - ga -c ".../Slicer ...")` form
+    # deadlocked indefinitely: `timeout 15` SIGTERMs `su`, but Slicer
+    # (now reparented to init) inherits the $() capture pipe and never
+    # closes it, so bash blocks on the pipe forever. The agent's Slicer
+    # is still alive on DISPLAY=:1, so this second --no-main-window Slicer
+    # collides on X resources and never exits cleanly.
+    #
+    # By writing to a regular file and redirecting bash's stdin/out/err to
+    # /dev/null, bash waits only on `timeout` itself; the timer fires after
+    # 15s regardless of any reparented grandchild process state.
+    SLICER_STATE_FILE=$(mktemp /tmp/slicer_state.XXXXXX.json)
+    echo '{}' > "$SLICER_STATE_FILE"
+    timeout 15 su - ga -c \
+        "DISPLAY=:1 /opt/Slicer/Slicer --python-script /tmp/check_vr_state.py --no-main-window > $SLICER_STATE_FILE 2>/dev/null" \
+        </dev/null >/dev/null 2>&1 || true
+    SLICER_STATE=$(cat "$SLICER_STATE_FILE")
+    rm -f "$SLICER_STATE_FILE"
     
     # Parse the result
     if [ -n "$SLICER_STATE" ] && echo "$SLICER_STATE" | grep -q "{"; then

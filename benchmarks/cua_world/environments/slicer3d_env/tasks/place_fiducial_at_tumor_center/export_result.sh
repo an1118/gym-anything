@@ -43,11 +43,18 @@ fi
 # Check if any point fiducial exists in Slicer
 POINT_EXISTS=false
 if $SLICER_RUNNING; then
-    POINT_CHECK=$(sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-code "
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock.
+    POINT_PY_FILE=$(mktemp /tmp/point_query.XXXXXX.py)
+    cat > "$POINT_PY_FILE" << 'POINTPY'
 import slicer
 nodes = slicer.util.getNodesByClass('vtkMRMLMarkupsFiducialNode')
 print('true' if nodes else 'false')
-" 2>/dev/null | tail -1)
+POINTPY
+    POINT_OUT_FILE=$(mktemp /tmp/point_out.XXXXXX.txt)
+    timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-main-window --python-script "$POINT_PY_FILE" > "$POINT_OUT_FILE" 2>/dev/null </dev/null || true
+    POINT_CHECK=$(tail -1 "$POINT_OUT_FILE" 2>/dev/null || echo "false")
+    rm -f "$POINT_PY_FILE" "$POINT_OUT_FILE"
     if [ "$POINT_CHECK" = "true" ]; then
         POINT_EXISTS=true
     fi

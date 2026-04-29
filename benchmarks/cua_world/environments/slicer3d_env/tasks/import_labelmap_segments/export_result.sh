@@ -112,8 +112,13 @@ except Exception as e:
 print(json.dumps(result))
 PYEOF
 
-    # Run the query script in Slicer
-    QUERY_RESULT=$(timeout 30 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --no-splash --no-main-window --python-script /tmp/query_slicer_state.py 2>/dev/null" | tail -1)
+    # Run the query script in Slicer. Capture via tempfile, not bash $() pipe
+    # — a leaked --no-main-window Slicer grandchild that survives `timeout`
+    # would otherwise hold the $() capture pipe open and deadlock bash.
+    QUERY_OUT_FILE=$(mktemp /tmp/query_out.XXXXXX.txt)
+    timeout 30 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --no-splash --no-main-window --python-script /tmp/query_slicer_state.py > $QUERY_OUT_FILE 2>/dev/null" </dev/null >/dev/null 2>&1 || true
+    QUERY_RESULT=$(tail -1 "$QUERY_OUT_FILE" 2>/dev/null || echo "")
+    rm -f "$QUERY_OUT_FILE"
     
     if [ -z "$QUERY_RESULT" ]; then
         echo "Slicer query returned empty, using default values"

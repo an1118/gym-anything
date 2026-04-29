@@ -108,13 +108,20 @@ PYEOF
 # Execute query script in Slicer
 FIDUCIAL_DATA=""
 if [ "$SLICER_RUNNING" = "true" ]; then
-    # Run the Python script in Slicer context
-    FIDUCIAL_DATA=$(sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-splash --no-main-window --python-script "$FIDUCIAL_QUERY_SCRIPT" 2>/dev/null | grep -E '^\{.*\}$' | tail -1)
-    
-    # If that didn't work, try alternative approach
+    # Capture via tempfile, not bash $() pipe — leaked --no-main-window
+    # Slicer grandchild would otherwise hold the $() pipe open and deadlock
+    # bash. Also: previously had no timeout; bound to 30s.
+    FID_OUT_FILE=$(mktemp /tmp/fid_out.XXXXXX.txt)
+
+    # Primary attempt: run the heredoc script.
+    timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --no-splash --no-main-window --python-script "$FIDUCIAL_QUERY_SCRIPT" > "$FID_OUT_FILE" 2>/dev/null </dev/null || true
+    FIDUCIAL_DATA=$(grep -E '^\{.*\}$' "$FID_OUT_FILE" 2>/dev/null | tail -1)
+
+    # Fallback attempt if first was empty / trivial.
     if [ -z "$FIDUCIAL_DATA" ] || [ "$FIDUCIAL_DATA" = "{}" ]; then
         echo "Trying alternative query method..."
-        FIDUCIAL_DATA=$(sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-code "
+        FID_PY_FILE=$(mktemp /tmp/fid_query.XXXXXX.py)
+        cat > "$FID_PY_FILE" << 'FIDPY'
 import json
 import slicer
 
@@ -122,10 +129,10 @@ result = {'fiducials_found': False, 'fiducial_count': 0, 'fiducials': [], 'volum
 
 try:
     result['volumes_loaded'] = slicer.mrmlScene.GetNumberOfNodesByClass('vtkMRMLScalarVolumeNode')
-    
+
     fiducial_nodes = slicer.util.getNodesByClass('vtkMRMLMarkupsFiducialNode')
     result['fiducial_count'] = len(fiducial_nodes)
-    
+
     if fiducial_nodes:
         result['fiducials_found'] = True
         for node in fiducial_nodes:
@@ -142,8 +149,12 @@ except Exception as e:
 
 print(json.dumps(result))
 exit()
-" 2>/dev/null | grep -E '^\{.*\}$' | tail -1)
+FIDPY
+        timeout 30 sudo -u ga DISPLAY=:1 /opt/Slicer/Slicer --python-script "$FID_PY_FILE" > "$FID_OUT_FILE" 2>/dev/null </dev/null || true
+        FIDUCIAL_DATA=$(grep -E '^\{.*\}$' "$FID_OUT_FILE" 2>/dev/null | tail -1)
+        rm -f "$FID_PY_FILE"
     fi
+    rm -f "$FID_OUT_FILE"
 fi
 
 # Default result if query failed

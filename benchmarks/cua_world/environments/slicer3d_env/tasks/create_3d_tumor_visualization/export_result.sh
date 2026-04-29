@@ -129,8 +129,13 @@ if vol_nodes:
 print("SLICER_STATE_JSON:" + json.dumps(result))
 PYEOF
 
-    # Run query script
-    QUERY_OUTPUT=$(su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-code \"exec(open('/tmp/query_slicer_state.py').read())\" --no-main-window --no-splash 2>/dev/null" 2>&1 || echo "")
+    # Run query script. Capture via tempfile, not bash $() pipe — leaked
+    # --no-main-window Slicer grandchild would otherwise hold the $() pipe
+    # open and deadlock bash. Also: previously had no timeout; bound to 30s.
+    QUERY_OUT_FILE=$(mktemp /tmp/query_out.XXXXXX.txt)
+    timeout 30 su - ga -c "DISPLAY=:1 /opt/Slicer/Slicer --python-code \"exec(open('/tmp/query_slicer_state.py').read())\" --no-main-window --no-splash > $QUERY_OUT_FILE 2>&1" </dev/null >/dev/null 2>&1 || true
+    QUERY_OUTPUT=$(cat "$QUERY_OUT_FILE" 2>/dev/null || echo "")
+    rm -f "$QUERY_OUT_FILE"
     
     # Parse output
     if echo "$QUERY_OUTPUT" | grep -q "SLICER_STATE_JSON:"; then

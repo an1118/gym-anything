@@ -85,8 +85,12 @@ def load_segmentation_nrrd(filepath):
         if key.startswith("Segment") and "_" in key:
             parts = key.split("_", 1)
             seg_idx = parts[0].replace("Segment", "")
+            # Skip whole-file metadata like Segmentation_ReferenceImageExtentOffset,
+            # which leaves seg_idx="ation" and crashes int() below.
+            if not seg_idx.isdigit():
+                continue
             attr_name = parts[1]
-            
+
             if seg_idx not in segment_info:
                 segment_info[seg_idx] = {}
             segment_info[seg_idx][attr_name] = value
