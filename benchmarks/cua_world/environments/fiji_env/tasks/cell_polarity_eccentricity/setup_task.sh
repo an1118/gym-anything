@@ -20,8 +20,8 @@ if [ ! -d "/opt/fiji_samples/BBBC005" ]; then
 fi
 
 # Copy samples to user directory if not already there
-cp -n /opt/fiji_samples/BBBC005/*C1*.TIF "$DATA_DIR/" 2>/dev/null || true
-cp -n /opt/fiji_samples/BBBC005/*C1*.tif "$DATA_DIR/" 2>/dev/null || true
+cp -n /opt/fiji_samples/BBBC005/BBBC005_v1_images/*C1*.TIF "$DATA_DIR/" 2>/dev/null || true
+cp -n /opt/fiji_samples/BBBC005/BBBC005_v1_images/*C1*.tif "$DATA_DIR/" 2>/dev/null || true
 
 # Set ownership
 chown -R ga:ga "/home/ga/Fiji_Data"

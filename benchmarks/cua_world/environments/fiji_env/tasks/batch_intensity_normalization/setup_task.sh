@@ -14,7 +14,7 @@ mkdir -p /home/ga/Fiji_Data/raw/BBBC005
 if [ -d "/opt/fiji_samples/BBBC005" ]; then
     echo "Copying BBBC005 data from system samples..."
     # Copy specifically the w2 files (nuclear stain) to keep it clean, or all
-    cp -n /opt/fiji_samples/BBBC005/*_w2.TIF /home/ga/Fiji_Data/raw/BBBC005/ 2>/dev/null || true
+    cp -n /opt/fiji_samples/BBBC005/BBBC005_v1_images/*_w2.TIF /home/ga/Fiji_Data/raw/BBBC005/ 2>/dev/null || true
 else
     echo "WARNING: /opt/fiji_samples/BBBC005 not found. Attempting download..."
     # Fallback download if environment didn't set it up
