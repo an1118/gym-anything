@@ -6,10 +6,23 @@ echo "=== Installing Fiji (ImageJ distribution) and related packages ==="
 # Non-interactive apt
 export DEBIAN_FRONTEND=noninteractive
 
-# Make apt resilient to flaky mirror IPs. Canonical mirrors round-robin DNS
-# across ~8 IPs; some hosts can't reach a subset (e.g. 185.125.190.x), and a
-# single connection that hits a bad IP times out. Retries=5 lets apt re-resolve
-# on each attempt, so it usually lands on a working IP within a few seconds.
+# Force apt to talk HTTPS to ubuntu mirrors. Some host networks (e.g. Azure
+# VMs with default egress NSG) block outbound TCP/80 entirely while letting
+# TCP/443 through, so plain http://archive.ubuntu.com:80 hangs / refuses
+# even though Canonical's mirror is healthy. Switching to https://… makes
+# apt go over 443 and works regardless of the host's HTTP egress policy.
+# Ubuntu 24.04 (noble) uses deb822 sources at /etc/apt/sources.list.d/*.sources;
+# we patch both that and the legacy *.list for safety.
+sed -i \
+  -e 's|http://archive.ubuntu.com|https://archive.ubuntu.com|g' \
+  -e 's|http://security.ubuntu.com|https://security.ubuntu.com|g' \
+  /etc/apt/sources.list \
+  /etc/apt/sources.list.d/*.list \
+  /etc/apt/sources.list.d/*.sources \
+  2>/dev/null || true
+
+# Belt-and-suspenders: even on HTTPS, IP-pool round-robin can hit a slow IP.
+# Tell apt to retry up to 5 times on transient failures.
 mkdir -p /etc/apt/apt.conf.d
 cat > /etc/apt/apt.conf.d/80-network-resilience <<'EOF'
 Acquire::Retries "5";
