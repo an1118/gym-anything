@@ -87,7 +87,7 @@ def verify_sem_fft_restoration(traj, env_info, task_info):
     # Check if they actually opened the FFT window
     vlm_score = 0
     try:
-        frames = sample_trajectory_frames(traj, n=8)
+        frames = sample_trajectory_frames(traj, num_samples=8)
         
         prompt = """
         Review these screenshots of a Fiji/ImageJ session.

@@ -23,7 +23,7 @@ try:
     from vlm_utils import query_vlm, sample_trajectory_frames
 except ImportError:
     # Fallback/Stub if not running in full framework
-    def sample_trajectory_frames(traj, n=5): return []
+    def sample_trajectory_frames(traj, num_samples=5): return []
     def query_vlm(**kwargs): return {"success": False, "error": "VLM not available"}
 
 logging.basicConfig(level=logging.INFO)
@@ -113,7 +113,7 @@ def verify_worm_straightening(traj, env_info, task_info):
     # 3. VLM Verification (30 points)
     # Check trajectory for tool usage: Segmented Line -> Straighten -> Plot
     
-    frames = sample_trajectory_frames(traj, n=6)
+    frames = sample_trajectory_frames(traj, num_samples=6)
     vlm_score = 0
     
     if frames:

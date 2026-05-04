@@ -26,7 +26,7 @@ try:
     from gym_anything.vlm import sample_trajectory_frames, get_final_screenshot, query_vlm
 except ImportError:
     # Fallback for testing/standalone
-    def sample_trajectory_frames(traj, n=5): return []
+    def sample_trajectory_frames(traj, num_samples=5): return []
     def get_final_screenshot(traj): return None
     def query_vlm(prompt, images=None, image=None): return {"success": False}
 
@@ -112,7 +112,7 @@ def verify_leaf_vein_skeleton_analysis(traj, env_info, task_info):
     # --- CHECK 5 & 6: VLM Verification (40 pts) ---
     
     # Gather images
-    traj_frames = sample_trajectory_frames(traj, n=4)
+    traj_frames = sample_trajectory_frames(traj, num_samples=4)
     final_screen = get_final_screenshot(traj)
     
     if not traj_frames and not final_screen:

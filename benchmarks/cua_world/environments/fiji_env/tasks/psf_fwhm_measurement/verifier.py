@@ -133,7 +133,7 @@ def verify_psf_measurement(traj, env_info, task_info):
     vlm_score = 0
     try:
         from gym_anything.vlm import sample_trajectory_frames, query_vlm
-        frames = sample_trajectory_frames(traj, n=4)
+        frames = sample_trajectory_frames(traj, num_samples=4)
         
         prompt = """
         Review these screenshots of a user using Fiji/ImageJ.

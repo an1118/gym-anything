@@ -77,7 +77,7 @@ def verify_fractal_analysis(traj, env_info, task_info):
 
     # 5. VLM Verification (10 pts)
     # Check trajectory for the "Fractal Box Count" plot or dialog
-    frames = sample_trajectory_frames(traj, n=4)
+    frames = sample_trajectory_frames(traj, num_samples=4)
     final = get_final_screenshot(traj)
     
     vlm_prompt = """

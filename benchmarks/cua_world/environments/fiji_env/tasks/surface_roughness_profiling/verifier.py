@@ -23,7 +23,7 @@ try:
     from vlm_utils import sample_trajectory_frames, query_vlm
 except ImportError:
     # Fallback/Mock if running outside full framework
-    def sample_trajectory_frames(traj, n=5): return []
+    def sample_trajectory_frames(traj, num_samples=5): return []
     def query_vlm(prompt, images): return {"success": False}
 
 logging.basicConfig(level=logging.INFO)
@@ -118,7 +118,7 @@ def verify_surface_profiling(traj, env_info, task_info):
 
     # Criterion 6: VLM Process Verification (10 pts)
     # Use trajectory to see if they actually used the tools
-    frames = sample_trajectory_frames(traj, n=8)
+    frames = sample_trajectory_frames(traj, num_samples=8)
     vlm_score = 0
     if frames:
         prompt = """

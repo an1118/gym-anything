@@ -23,7 +23,7 @@ try:
 except ImportError:
     # Fallback/mock for local testing
     def query_vlm(**kwargs): return {"passed": False, "score": 0, "feedback": "VLM not available"}
-    def sample_trajectory_frames(traj, n=1): return []
+    def sample_trajectory_frames(traj, num_samples=1): return []
     def get_final_screenshot(traj): return None
 
 logging.basicConfig(level=logging.INFO)
@@ -163,7 +163,7 @@ def verify_depth_color_coded_projection(traj, env_info, task_info):
 
     # 4. VLM Verification (25 pts)
     # Use trajectory to ensure they actually used the plugin and didn't just paint
-    frames = sample_trajectory_frames(traj, n=5)
+    frames = sample_trajectory_frames(traj, num_samples=5)
     final_ss = get_final_screenshot(traj)
     
     if frames and final_ss:

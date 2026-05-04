@@ -104,7 +104,7 @@ def verify_cell_spacing(traj, env_info, task_info):
     # 3. VLM Verification (15 points max)
     # We want to see if the agent actually computed the Distance Map (visible as a gradient image).
     
-    frames = sample_trajectory_frames(traj, n=4)
+    frames = sample_trajectory_frames(traj, num_samples=4)
     final_screen = get_final_screenshot(traj)
     
     if frames:

@@ -97,7 +97,7 @@ def verify_colony_counting(traj, env_info, task_info):
 
     # --- Criterion 7: VLM Workflow Verification (15 pts) ---
     # Check if agent used "Analyze Particles" or "Threshold" UI
-    trajectory_images = sample_trajectory_frames(traj, n=4)
+    trajectory_images = sample_trajectory_frames(traj, num_samples=4)
     final_img = get_final_screenshot(traj)
     
     if final_img:

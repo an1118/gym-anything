@@ -98,7 +98,7 @@ def verify_particle_inclusion_analysis(traj, env_info, task_info):
     # CRITERION 4: VLM Trajectory Verification (30 pts)
     # =========================================================
     # We check if the agent actually used the necessary dialogs
-    frames = sample_trajectory_frames(traj, n=8)
+    frames = sample_trajectory_frames(traj, num_samples=8)
     
     vlm_prompt = """
     Analyze these screenshots of a Fiji/ImageJ session.

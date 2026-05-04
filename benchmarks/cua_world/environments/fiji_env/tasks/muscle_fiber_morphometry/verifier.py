@@ -96,7 +96,7 @@ def verify_muscle_fiber_morphometry(traj, env_info, task_info):
 
     # 8. VLM Trajectory Verification (20 pts)
     # We check if the agent actually used the Watershed tool visually
-    frames = sample_trajectory_frames(traj, n=4)
+    frames = sample_trajectory_frames(traj, num_samples=4)
     vlm_prompt = """
     Analyze these screenshots of a Fiji/ImageJ task.
     The user should be segmenting muscle fibers.

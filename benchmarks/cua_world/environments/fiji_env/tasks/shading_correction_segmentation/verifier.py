@@ -23,7 +23,7 @@ except ImportError:
         return {"success": False, "error": "VLM not available"}
     def get_final_screenshot(traj):
         return None
-    def sample_trajectory_frames(traj, n=1):
+    def sample_trajectory_frames(traj, num_samples=1):
         return []
 
 logging.basicConfig(level=logging.INFO)

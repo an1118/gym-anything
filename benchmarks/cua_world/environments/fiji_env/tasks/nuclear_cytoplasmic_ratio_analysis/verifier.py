@@ -85,7 +85,7 @@ def verify_translocation_ratio(traj, env_info, task_info):
     # Check if they actually used the tools
     from gym_anything.vlm import sample_trajectory_frames, query_vlm
     
-    frames = sample_trajectory_frames(traj, n=4)
+    frames = sample_trajectory_frames(traj, num_samples=4)
     if frames:
         prompt = """
         Review these screenshots of a user using Fiji/ImageJ.
