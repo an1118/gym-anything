@@ -19,11 +19,10 @@ DEST_PATH="/home/ga/Fiji_Data/raw/neuron/ddaC.tif"
 
 if [ ! -f "$DEST_PATH" ]; then
     echo "Downloading ddaC.tif..."
-    wget -q --timeout=30 "$IMAGE_URL" -O "$DEST_PATH" 2>/dev/null || {
+    wget -q --tries=5 --timeout=60 "$IMAGE_URL" -O "$DEST_PATH" 2>/dev/null || {
         echo "Primary download failed, trying backup..."
-        # Backup location or creation of a placeholder if network completely fails is handled by env,
-        # but here we try a mirror or fail.
-        wget -q "https://wsr.imagej.net/images/ddaC.tif" -O "$DEST_PATH"
+        wget -q --tries=5 --timeout=60 \
+            "https://wsr.imagej.net/images/ddaC.tif" -O "$DEST_PATH"
     }
 fi
 

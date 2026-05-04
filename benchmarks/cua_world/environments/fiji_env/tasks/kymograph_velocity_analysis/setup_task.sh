@@ -108,7 +108,7 @@ chmod 644 /tmp/load_hela.ijm
 pkill -f "fiji" || true
 pkill -f "ImageJ" || true
 sleep 2
-su - ga -c "DISPLAY=:1 /opt/fiji/ImageJ-linux64 -macro /tmp/load_hela.ijm" &
+su - ga -c "DISPLAY=:1 fiji -macro /tmp/load_hela.ijm" &
 
 # Wait again
 sleep 10

@@ -18,10 +18,12 @@ OUTPUT_FILE="/home/ga/Fiji_Data/raw/food_science/sourdough_slice.jpg"
 
 echo "Downloading sample data..."
 if [ ! -f "$OUTPUT_FILE" ]; then
-    wget -q --timeout=30 "$IMAGE_URL" -O "$OUTPUT_FILE" || {
+    wget -q --tries=5 --timeout=60 "$IMAGE_URL" -O "$OUTPUT_FILE" || {
         echo "Primary download failed, trying backup..."
         # Backup: Alternative bread texture
-        wget -q "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Korb%C3%A4ste.jpg/800px-Korb%C3%A4ste.jpg" -O "$OUTPUT_FILE"
+        wget -q --tries=5 --timeout=60 \
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c7/Korb%C3%A4ste.jpg/800px-Korb%C3%A4ste.jpg" \
+            -O "$OUTPUT_FILE"
     }
 fi
 

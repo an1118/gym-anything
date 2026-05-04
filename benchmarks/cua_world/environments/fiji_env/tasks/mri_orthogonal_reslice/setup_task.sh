@@ -14,37 +14,44 @@ chown -R ga:ga /home/ga/Fiji_Data
 rm -f /home/ga/Fiji_Data/results/reslice/*
 
 # 4. Prepare the T1 Head dataset
-# We download the raw zip, extract it, and convert raw to TIFF to ensure
-# the agent starts with an uncalibrated TIFF as specified.
+# imagej.net's t1-head-raw.zip now ships JeffT1_le.tif (a multi-page TIFF)
+# rather than a .raw file. We copy it through PIL to strip any resolution
+# metadata, so the agent starts with an uncalibrated TIFF as the task
+# requires (the agent must set the calibration as part of the workflow).
 if [ ! -f "/home/ga/Fiji_Data/raw/t1-head/t1-head.tif" ]; then
     echo "Downloading and preparing T1 Head data..."
-    
+
     cd /tmp
-    wget -q "https://imagej.net/ij/images/t1-head-raw.zip" -O t1-head-raw.zip
-    unzip -q t1-head-raw.zip
-    
-    # Use Python to convert raw (256x256x129, 16-bit big-endian) to TIFF
-    # We purposefully do NOT set resolution metadata here, as the task requires the agent to do it.
+    wget -q --tries=5 --timeout=60 \
+        "https://imagej.net/ij/images/t1-head-raw.zip" -O t1-head-raw.zip
+    unzip -q -o t1-head-raw.zip
+
     python3 -c "
-import numpy as np
 from PIL import Image
 import os
 
-# Read raw file (16-bit big-endian)
-raw_path = 't1-head.raw'
-if os.path.exists(raw_path):
-    # 256 * 256 * 129 * 2 bytes
-    data = np.fromfile(raw_path, dtype='>u2') 
-    data = data.reshape((129, 256, 256))
-    
-    # Save as multi-page TIFF
-    imgs = [Image.fromarray(data[i]) for i in range(129)]
-    imgs[0].save('/home/ga/Fiji_Data/raw/t1-head/t1-head.tif', save_all=True, append_images=imgs[1:])
-    print('Converted raw to uncalibrated TIFF.')
-else:
-    print('Error: t1-head.raw not found')
+src = 'JeffT1_le.tif'
+if not os.path.exists(src):
+    print(f'Error: {src} not found in zip; zip contents may have changed again')
+    raise SystemExit(1)
+
+img = Image.open(src)
+frames = []
+try:
+    while True:
+        frames.append(img.copy())
+        img.seek(img.tell() + 1)
+except EOFError:
+    pass
+
+# Re-save without resolution metadata so the agent must add it.
+frames[0].save(
+    '/home/ga/Fiji_Data/raw/t1-head/t1-head.tif',
+    save_all=True, append_images=frames[1:],
+)
+print(f'Saved uncalibrated TIFF: {len(frames)} pages')
 "
-    rm -f t1-head.raw t1-head-raw.zip
+    rm -f JeffT1_le.tif t1-head-raw.zip
     chown ga:ga /home/ga/Fiji_Data/raw/t1-head/t1-head.tif
 fi
 

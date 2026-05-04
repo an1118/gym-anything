@@ -97,7 +97,7 @@ fi
 # Use the launch script if available, otherwise direct
 LAUNCH_CMD="/home/ga/launch_fiji.sh"
 if [ ! -f "$LAUNCH_CMD" ]; then
-    LAUNCH_CMD="/opt/fiji/Fiji.app/ImageJ-linux64"
+    LAUNCH_CMD="fiji"
 fi
 
 # Launch in background as user ga
