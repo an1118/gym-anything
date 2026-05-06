@@ -1,0 +1,25 @@
+{
+  "id": "_warmup@1",
+  "version": "1.0",
+  "env_id": "fiji_env@0.1",
+  "description": "Synthetic warmup task: launch Fiji with no fixture data so an outer caller (e.g. v3 skill pipeline planner) gets a screenshot of the idle main window. The verifier always passes — this task is not meant to be solved by an agent.",
+  "difficulty": "trivial",
+  "init": {
+    "timeout_sec": 60,
+    "max_steps": 1,
+    "reward_type": "sparse"
+  },
+  "hooks": {
+    "pre_task": "/workspace/tasks/_warmup/setup_task.sh"
+  },
+  "metadata": {
+    "purpose": "warmup",
+    "no_fixture": true
+  },
+  "success": {
+    "mode": "program",
+    "spec": {
+      "program": "verifier.verify_warmup"
+    }
+  }
+}
